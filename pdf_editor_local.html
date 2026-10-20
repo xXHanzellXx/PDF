@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor PDF Profesional & Local</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- External Libraries: PDF.js, PDF-Lib, Fabric.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos para asegurar sincronización de lienzo */
+    .canvas-container {
+      margin: 0 auto;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      background-color: white;
+    }
+    /* Ocultar barra de desplazamiento manteniendo funcionalidad */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased overflow-hidden select-none">
+
+  <!-- ENCABEZADO Y BARRA SUPERIOR -->
+  <header class="bg-slate-900 text-white h-16 flex items-center justify-between px-4 sm:px-6 shadow-md z-20 shrink-0">
+    <!-- Logotipo y Estado -->
+    <div class="flex items-center space-x-3">
+      <div class="bg-indigo-600 p-2 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-file-pdf text-xl text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold leading-tight">Editor PDF Local</h1>
+        <p class="text-xs text-emerald-400 font-medium flex items-center gap-1">
+          <i class="fa-solid fa-shield-halved text-[10px]"></i> 100% Privado en tu Navegador
+        </p>
+      </div>
+    </div>
+
+    <!-- Acciones de Archivo Primarias -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg cursor-pointer transition shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-folder-open"></i>
+        <span class="hidden sm:inline">Abrir PDF</span>
+        <input type="file" id="pdf-input" accept="application/pdf" class="hidden" />
+      </label>
+
+      <button id="btn-export" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-download"></i>
+        <span class="hidden sm:inline">Guardar PDF</span>
+      </button>
+
+      <button id="btn-guide" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-graduation-cap text-base"></i>
+        <span>Manual Fácil</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ÁREA PRINCIPAL DE TRABAJO -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- PANEL DE HERRAMIENTAS LATERAL / BARRA SUPERIOR EN MÓVIL -->
+    <aside class="w-full sm:w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-sm overflow-y-auto no-scrollbar">
+      
+      <div class="p-4 border-b border-slate-100 font-semibold text-xs text-slate-400 uppercase tracking-wider hidden sm:block">
+        Herramientas de Edición
+      </div>
+
+      <!-- Grupos de Herramientas -->
+      <div class="p-3 space-y-4">
+
+        <!-- Modos de Interacción -->
+        <div>
+          <label class="text-xs font-bold text-slate-500 block mb-2">Modo de Selección</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="tool-select" class="tool-btn bg-indigo-50 border-indigo-500 text-indigo-700 p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition">
+              <i class="fa-solid fa-hand-pointer"></i> Seleccionar
+            </button>
+            <button id="tool-delete" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-trash-can"></i> Borrar
+            </button>
+          </div>
+        </div>
+
+        <!-- Añadir Texto y Cobertura -->
+        <div>
+          <label class="text-xs font-bold text-slate-500 block mb-2">Texto y Borrado</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="tool-text" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-font"></i> Texto
+            </button>
+            <button id="tool-whiteout" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2" title="Cubre texto u objetos con un parche blanco">
+              <i class="fa-solid fa-eraser"></i> Tapar / Ocultar
+            </button>
+          </div>
+        </div>
+
+        <!-- Opciones de Texto (Dinámicas) -->
+        <div id="text-options" class="p-3 bg-slate-50 rounded-lg space-y-2.5 border border-slate-200">
+          <span class="text-xs font-bold text-slate-600 block">Estilos de Texto</span>
+          <div>
+            <select id="font-family" class="w-full text-xs p-1.5 border border-slate-300 rounded bg-white">
+              <option value="Arial">Arial</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Comic Sans MS">Comic Sans</option>
+              <option value="Impact">Impact</option>
+              <option value="Georgia">Georgia</option>
+            </select>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <input type="number" id="font-size" value="18" min="8" max="120" class="w-16 text-xs p-1.5 border border-slate-300 rounded text-center bg-white">
+            <input type="color" id="text-color" value="#000000" class="w-8 h-8 rounded border border-slate-300 cursor-pointer p-0 bg-white">
+            <button id="btn-bold" class="p-1.5 px-2.5 text-xs font-bold border border-slate-300 rounded bg-white hover:bg-slate-100">B</button>
+            <button id="btn-italic" class="p-1.5 px-2.5 text-xs italic border border-slate-300 rounded bg-white hover:bg-slate-100">I</button>
+          </div>
+        </div>
+
+        <!-- Dibujo Manual y Resaltador -->
+        <div>
+          <label class="text-xs font-bold text-slate-500 block mb-2">Dibujo y Firma</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-pen"></i> Lápiz / Firma
+            </button>
+            <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-highlighter"></i> Resaltador
+            </button>
+          </div>
+        </div>
+
+        <!-- Formas Geométricas -->
+        <div>
+          <label class="text-xs font-bold text-slate-500 block mb-2">Formas</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button id="tool-rect" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+              <i class="fa-regular fa-square text-base"></i>
+            </button>
+            <button id="tool-circle" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+              <i class="fa-regular fa-circle text-base"></i>
+            </button>
+            <button id="tool-line" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+              <i class="fa-solid fa-slash text-base"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Insertar Imagen -->
+        <div>
+          <label class="text-xs font-bold text-slate-500 block mb-2">Imágenes o Logos</label>
+          <label class="w-full p-2 rounded-lg text-xs font-semibold border border-dashed border-slate-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-image"></i> Insertar Imagen
+            <input type="file" id="image-input" accept="image/*" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Modificación de Páginas -->
+        <div class="pt-2 border-t border-slate-200">
+          <label class="text-xs font-bold text-slate-500 block mb-2">Gestión de Páginas</label>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <button id="btn-rotate-left" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-rotate-left"></i> Rotar -90°
+            </button>
+            <button id="btn-rotate-right" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-rotate-right"></i> Rotar +90°
+            </button>
+          </div>
+          <button id="btn-delete-page" class="w-full p-2 rounded-lg text-xs font-semibold border border-rose-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-circle-minus"></i> Eliminar Página Actual
+          </button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ÁREA DEL VISOR Y LIENZO EDICION -->
+    <main class="flex-1 bg-slate-200/70 flex flex-col overflow-hidden relative">
+      
+      <!-- Barra Control de Navegación y Zoom -->
+      <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
+        <!-- Navegación de Páginas -->
+        <div class="flex items-center space-x-2">
+          <button id="btn-prev" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="text-xs font-medium text-slate-600">
+            Página <input type="number" id="page-num" value="1" min="1" class="w-12 text-center border border-slate-300 rounded py-0.5 mx-1"> de <span id="page-count">0</span>
+          </span>
+          <button id="btn-next" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Controles de Zoom -->
+        <div class="flex items-center space-x-2">
+          <button id="btn-zoom-out" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition">
+            <i class="fa-solid fa-magnifying-glass-minus"></i>
+          </button>
+          <span id="zoom-value" class="text-xs font-semibold text-slate-600 min-w-[3rem] text-center">100%</span>
+          <button id="btn-zoom-in" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition">
+            <i class="fa-solid fa-magnifying-glass-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Espacio de Trabajo con Desplazamiento -->
+      <div id="viewport-container" class="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
+        
+        <!-- Estado Inicial Vacío -->
+        <div id="empty-state" class="my-auto text-center max-w-sm p-6 bg-white rounded-2xl shadow-xl border border-slate-100">
+          <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+            <i class="fa-solid fa-file-circle-plus"></i>
+          </div>
+          <h2 class="text-lg font-bold text-slate-800 mb-2">Comienza a Editar tu PDF</h2>
+          <p class="text-xs text-slate-500 mb-6">Selecciona cualquier archivo PDF de tu equipo. El procesamiento es 100% privado y no requiere internet.</p>
+          <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl cursor-pointer transition shadow-md inline-block">
+            Seleccionar Archivo
+            <input type="file" id="pdf-input-welcome" accept="application/pdf" class="hidden" />
+          </label>
+        </div>
+
+        <!-- Contenedor del Lienzo Editor (Sincronizado) -->
+        <div id="editor-wrapper" class="relative hidden">
+          <!-- Canvas donde PDF.js dibuja el PDF -->
+          <canvas id="pdf-canvas" class="absolute top-0 left-0 pointer-events-none"></canvas>
+          <!-- Canvas interactivo de Fabric.js -->
+          <canvas id="fabric-canvas" class="relative"></canvas>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODAL: MANUAL DE USO "SUPER FÁCIL" -->
+  <div id="guide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in">
+      
+      <!-- Encabezado Modal -->
+      <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-4 sm:p-6 text-slate-950 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="bg-white/20 p-2.5 rounded-xl">
+            <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg sm:text-xl font-bold">Manual Fácil de Uso paso a paso</h3>
+            <p class="text-xs font-medium opacity-90">¡Aprende a usar tu editor en menos de 1 minuto!</p>
+          </div>
+        </div>
+        <button id="close-guide" class="text-slate-950/70 hover:text-slate-950 text-2xl font-bold p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Contenido del Manual -->
+      <div class="p-6 overflow-y-auto space-y-6 text-slate-700 text-sm">
+        
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">1</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">Abrir tu documento PDF</h4>
+            <p class="text-xs sm:text-sm text-slate-600">Haz clic en el botón azul <strong>"Abrir PDF"</strong> en la esquina superior. Elige cualquier archivo guardado en tu computadora.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">2</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">Escribir Texto Nuevo</h4>
+            <p class="text-xs sm:text-sm text-slate-600">Presiona el botón <strong>"Texto"</strong> en el panel izquierdo. Haz un clic en la hoja justo donde quieres escribir y listo. Puedes cambiar el tipo de letra, tamaño y color.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">3</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">Tapar o "Borrar" texto viejo</h4>
+            <p class="text-xs sm:text-sm text-slate-600">¿Quieres borrar algo que ya venía en el PDF? Toca el botón <strong>"Tapar / Ocultar"</strong> y dibuja un cuadro encima de lo que deseas ocultar. ¡Funcionará como un borrador mágico blanco!</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">4</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">Firmar y Dibujar</h4>
+            <p class="text-xs sm:text-sm text-slate-600">Selecciona <strong>"Lápiz / Firma"</strong> para hacer trazos o escribir tu firma con el ratón o con el dedo si estás en pantalla táctil.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 items-start">
+          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">5</div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-base mb-1">Guardar tu archivo listo</h4>
+            <p class="text-xs sm:text-sm text-slate-600">Cuando termines todos tus cambios, presiona el botón verde <strong>"Guardar PDF"</strong> arriba a la derecha. Se descargará de inmediato a tu equipo con todas tus ediciones.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pie de Modal -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-center">
+        <button id="btn-understood" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl transition">
+          ¡Entendido, a editar!
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT LÓGICA PRINCIPAL (JAVASCRIPT) -->
+  <script>
+    // Configurar worker de PDF.js CDN
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+    // VARIABLES DE ESTADO GLOBAL
+    let pdfDoc = null;
+    let originalPdfBytes = null;
+    let pageNum = 1;
+    let pageRendering = false;
+    let pageNumPending = null;
+    let scale = 1.25;
+    let rotations = {}; // Almacena rotación de cada página { pageNum: angle }
+    let pageAnnotations = {}; // Guardar objetos de Fabric.js por página { pageNum: JSON }
+
+    // Canvas de renderizado y edición
+    const pdfCanvas = document.getElementById('pdf-canvas');
+    const pdfCtx = pdfCanvas.getContext('2d');
+    let fabricCanvas = null;
+
+    // Herramienta Activa
+    let currentTool = 'select';
+
+    // Inicialización al cargar la ventana
+    window.addEventListener('DOMContentLoaded', () => {
+      initFabricCanvas();
+      setupEventListeners();
+    });
+
+    // Configuración Inicial de Fabric.js
+    function initFabricCanvas() {
+      fabricCanvas = new fabric.Canvas('fabric-canvas', {
+        freeDrawingBrush: new fabric.PencilBrush(),
+      });
+
+      // Evento al modificar objetos para guardar estado de la página
+      fabricCanvas.on('object:modified', saveCurrentPageAnnotations);
+      fabricCanvas.on('object:added', saveCurrentPageAnnotations);
+      fabricCanvas.on('object:removed', saveCurrentPageAnnotations);
+    }
+
+    // Configuración de Controladores de Eventos
+    function setupEventListeners() {
+      // Carga de Archivos
+      document.getElementById('pdf-input').addEventListener('change', handleFileSelect);
+      document.getElementById('pdf-input-welcome').addEventListener('change', handleFileSelect);
+      document.getElementById('image-input').addEventListener('change', handleImageUpload);
+
+      // Controles de Navegación
+      document.getElementById('btn-prev').addEventListener('click', onPrevPage);
+      document.getElementById('btn-next').addEventListener('click', onNextPage);
+      document.getElementById('page-num').addEventListener('change', (e) => {
+        let num = parseInt(e.target.value);
+        if (num >= 1 && num <= pdfDoc.numPages) {
+          saveCurrentPageAnnotations();
+          pageNum = num;
+          queueRenderPage(pageNum);
+        }
+      });
+
+      // Zoom
+      document.getElementById('btn-zoom-in').addEventListener('click', () => { scale += 0.2; renderPage(pageNum); });
+      document.getElementById('btn-zoom-out').addEventListener('click', () => { if (scale > 0.5) { scale -= 0.2; renderPage(pageNum); } });
+
+      // Selección de Herramientas
+      document.getElementById('tool-select').addEventListener('click', () => setTool('select'));
+      document.getElementById('tool-text').addEventListener('click', () => addText());
+      document.getElementById('tool-whiteout').addEventListener('click', () => addWhiteout());
+      document.getElementById('tool-draw').addEventListener('click', () => setTool('draw'));
+      document.getElementById('tool-highlight').addEventListener('click', () => setTool('highlight'));
+      document.getElementById('tool-rect').addEventListener('click', () => addShape('rect'));
+      document.getElementById('tool-circle').addEventListener('click', () => addShape('circle'));
+      document.getElementById('tool-line').addEventListener('click', () => addShape('line'));
+      document.getElementById('tool-delete').addEventListener('click', deleteSelectedObject);
+
+      // Opciones de Texto
+      document.getElementById('font-family').addEventListener('change', updateTextProperty);
+      document.getElementById('font-size').addEventListener('change', updateTextProperty);
+      document.getElementById('text-color').addEventListener('change', updateTextProperty);
+
+      // Modificación de Páginas
+      document.getElementById('btn-rotate-left').addEventListener('click', () => rotatePage(-90));
+      document.getElementById('btn-rotate-right').addEventListener('click', () => rotatePage(90));
+      document.getElementById('btn-delete-page').addEventListener('click', deleteCurrentPage);
+
+      // Exportar PDF
+      document.getElementById('btn-export').addEventListener('click', exportPDF);
+
+      // Modal Guía
+      document.getElementById('btn-guide').addEventListener('click', () => document.getElementById('guide-modal').classList.remove('hidden'));
+      document.getElementById('close-guide').addEventListener('click', () => document.getElementById('guide-modal').classList.add('hidden'));
+      document.getElementById('btn-understood').addEventListener('click', () => document.getElementById('guide-modal').classList.add('hidden'));
+    }
+
+    // Cargar y Procesar el archivo PDF Seleccionado
+    async function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file || file.type !== 'application/pdf') return;
+
+      const fileArrayBuffer = await file.arrayBuffer();
+      originalPdfBytes = fileArrayBuffer.slice(0);
+
+      const loadingTask = pdfjsLib.getDocument({ data: fileArrayBuffer });
+      pdfDoc = await loadingTask.promise;
+
+      // Restablecer estados
+      pageNum = 1;
+      rotations = {};
+      pageAnnotations = {};
+      document.getElementById('page-count').textContent = pdfDoc.numPages;
+      document.getElementById('btn-export').disabled = false;
+
+      // Ocultar vista inicial y mostrar editor
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('editor-wrapper').classList.remove('hidden');
+
+      renderPage(pageNum);
+    }
+
+    // Renderizado Sincronizado de la Página Activa
+    async function renderPage(num) {
+      pageRendering = true;
+      const page = await pdfDoc.getPage(num);
+
+      const rotation = (rotations[num] || 0);
+      const viewport = page.getViewport({ scale: scale, rotation: rotation });
+
+      // Ajustar dimensiones del Canvas PDF
+      pdfCanvas.height = viewport.height;
+      pdfCanvas.width = viewport.width;
+
+      // Renderizar capa PDF
+      const renderContext = {
+        canvasContext: pdfCtx,
+        viewport: viewport
+      };
+      
+      await page.render(renderContext).promise;
+      pageRendering = false;
+
+      if (pageNumPending !== null) {
+        renderPage(pageNumPending);
+        pageNumPending = null;
+      }
+
+      // Sincronizar dimensiones del Fabric Canvas interactivo
+      fabricCanvas.setWidth(viewport.width);
+      fabricCanvas.setHeight(viewport.height);
+
+      // Cargar anotaciones guardadas previamente de esta página
+      loadCurrentPageAnnotations();
+
+      // Actualizar texto del zoom
+      document.getElementById('zoom-value').textContent = `${Math.round(scale * 100)}%`;
+      document.getElementById('page-num').value = num;
+    }
+
+    function queueRenderPage(num) {
+      if (pageRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
+    }
+
+    function onPrevPage() {
+      if (pageNum <= 1) return;
+      saveCurrentPageAnnotations();
+      pageNum--;
+      queueRenderPage(pageNum);
+    }
+
+    function onNextPage() {
+      if (pageNum >= pdfDoc.numPages) return;
+      saveCurrentPageAnnotations();
+      pageNum++;
+      queueRenderPage(pageNum);
+    }
+
+    // Guardar objetos interactivos dibujados en la página actual
+    function saveCurrentPageAnnotations() {
+      if (!fabricCanvas) return;
+      pageAnnotations[pageNum] = fabricCanvas.toJSON();
+    }
+
+    // Cargar objetos dibujados previamente en la página activa
+    function loadCurrentPageAnnotations() {
+      fabricCanvas.clear();
+      if (pageAnnotations[pageNum]) {
+        fabricCanvas.loadFromJSON(pageAnnotations[pageNum], fabricCanvas.renderAll.bind(fabricCanvas));
+      }
+      setTool(currentTool);
+    }
+
+    // Cambiar Modos de Herramienta
+    function setTool(tool) {
+      currentTool = tool;
+      fabricCanvas.isDrawingMode = false;
+
+      if (tool === 'draw') {
+        fabricCanvas.isDrawingMode = true;
+        fabricCanvas.freeDrawingBrush.color = '#000000';
+        fabricCanvas.freeDrawingBrush.width = 3;
+      } else if (tool === 'highlight') {
+        fabricCanvas.isDrawingMode = true;
+        fabricCanvas.freeDrawingBrush.color = 'rgba(255, 255, 0, 0.4)';
+        fabricCanvas.freeDrawingBrush.width = 18;
+      }
+    }
+
+    // Añadir Elementos interactivos
+    function addText() {
+      setTool('select');
+      const font = document.getElementById('font-family').value;
+      const size = parseInt(document.getElementById('font-size').value);
+      const color = document.getElementById('text-color').value;
+
+      const text = new fabric.IText('Haz clic para editar texto', {
+        left: fabricCanvas.width / 4,
+        top: fabricCanvas.height / 4,
+        fontFamily: font,
+        fontSize: size,
+        fill: color,
+      });
+
+      fabricCanvas.add(text);
+      fabricCanvas.setActiveObject(text);
+    }
+
+    function updateTextProperty() {
+      const activeObj = fabricCanvas.getActiveObject();
+      if (activeObj && activeObj.type === 'i-text') {
+        activeObj.set({
+          fontFamily: document.getElementById('font-family').value,
+          fontSize: parseInt(document.getElementById('font-size').value),
+          fill: document.getElementById('text-color').value,
+        });
+        fabricCanvas.renderAll();
+      }
+    }
+
+    // Herramienta de Tapado / Borrador (Redacción)
+    function addWhiteout() {
+      setTool('select');
+      const rect = new fabric.Rect({
+        left: fabricCanvas.width / 3,
+        top: fabricCanvas.height / 3,
+        width: 150,
+        height: 30,
+        fill: '#ffffff',
+        stroke: '#e2e8f0',
+        strokeWidth: 1,
+      });
+      fabricCanvas.add(rect);
+      fabricCanvas.setActiveObject(rect);
+    }
+
+    // Añadir Formas
+    function addShape(shapeType) {
+      setTool('select');
+      let shape;
+
+      if (shapeType === 'rect') {
+        shape = new fabric.Rect({
+          left: 100, top: 100, width: 100, height: 60,
+          fill: 'transparent', stroke: '#22c55e', strokeWidth: 2
+        });
+      } else if (shapeType === 'circle') {
+        shape = new fabric.Circle({
+          left: 100, top: 100, radius: 40,
+          fill: 'transparent', stroke: '#22c55e', strokeWidth: 2
+        });
+      } else if (shapeType === 'line') {
+        shape = new fabric.Line([50, 100, 200, 100], {
+          stroke: '#22c55e', strokeWidth: 3
+        });
+      }
+
+      if (shape) {
+        fabricCanvas.add(shape);
+        fabricCanvas.setActiveObject(shape);
+      }
+    }
+
+    // Cargar e Insertar Imagen Local
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (f) {
+        const data = f.target.result;
+        fabric.Image.fromURL(data, function (img) {
+          img.scaleToWidth(150);
+          img.set({ left: 100, top: 100 });
+          fabricCanvas.add(img);
+          fabricCanvas.setActiveObject(img);
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Eliminar Objeto Seleccionado
+    function deleteSelectedObject() {
+      const activeObject = fabricCanvas.getActiveObject();
+      if (activeObject) {
+        fabricCanvas.remove(activeObject);
+      }
+    }
+
+    // Rotar Página Actual
+    function rotatePage(deg) {
+      rotations[pageNum] = ((rotations[pageNum] || 0) + deg) % 360;
+      renderPage(pageNum);
+    }
+
+    // Eliminar Página Actual
+    async function deleteCurrentPage() {
+      if (!pdfDoc || pdfDoc.numPages <= 1) {
+        alert("No se puede eliminar la única página del documento.");
+        return;
+      }
+
+      saveCurrentPageAnnotations();
+
+      // Utilizar PDF-Lib para reconstruir bytes sin la página actual
+      const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
+      pdfDocLib.removePage(pageNum - 1);
+
+      originalPdfBytes = await pdfDocLib.save();
+
+      // Recargar PDF.js
+      const loadingTask = pdfjsLib.getDocument({ data: originalPdfBytes });
+      pdfDoc = await loadingTask.promise;
+
+      // Reajustar mapa de anotaciones
+      delete pageAnnotations[pageNum];
+      
+      if (pageNum > pdfDoc.numPages) {
+        pageNum = pdfDoc.numPages;
+      }
+
+      document.getElementById('page-count').textContent = pdfDoc.numPages;
+      renderPage(pageNum);
+    }
+
+    // EXPORTAR Y DESCARGAR EL PDF RESULTANTE
+    async function exportPDF() {
+      if (!originalPdfBytes) return;
+
+      saveCurrentPageAnnotations();
+
+      // Cargar el PDF original con PDF-Lib
+      const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
+      const pages = pdfDocLib.getPages();
+
+      // Recorrer cada página e incrustar las anotaciones renderizadas
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        if (pageAnnotations[i] && pageAnnotations[i].objects.length > 0
