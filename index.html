@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor PDF Profesional & Local</title>
+  <title>Editor PDF Profesional & Licenciado Suite</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Google Fonts Masivas para el Editor -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Poppins:wght@300;400;700&family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=Oswald:wght@400;700&family=Quicksand:wght@300;400;700&family=Cinzel:wght@400;700&family=Dancing+Script:wght@400;700&family=Pacifico&family=Caveat:wght@400;700&family=Bebas+Neue&family=Tahoma&family=Verdana&family=Trebuchet+MS&family=Garamond&family=Palatino&display=swap">
+
   <!-- External Libraries: PDF.js, PDF-Lib, Fabric.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -34,8 +37,8 @@
   <style>
     .canvas-container {
       margin: 0 auto;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
       background-color: white;
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -44,35 +47,66 @@
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased overflow-hidden select-none">
 
-  <!-- ENCABEZADO Y BARRA SUPERIOR -->
-  <header class="bg-slate-900 text-white h-16 flex items-center justify-between px-4 sm:px-6 shadow-md z-20 shrink-0">
+  <!-- ENCABEZADO Y BARRA SUPERIOR LICENCIADA -->
+  <header class="bg-slate-900 text-white h-16 flex items-center justify-between px-4 sm:px-6 shadow-xl z-20 shrink-0 border-b border-slate-800">
     <div class="flex items-center space-x-3">
-      <div class="bg-indigo-600 p-2 rounded-lg flex items-center justify-center">
-        <i class="fa-solid fa-file-pdf text-xl text-white"></i>
+      <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 p-2.5 rounded-xl flex items-center justify-center shadow-md">
+        <i class="fa-solid fa-file-shield text-xl text-white"></i>
       </div>
       <div>
-        <h1 class="text-base sm:text-lg font-bold leading-tight">Editor PDF Local</h1>
-        <p class="text-xs text-emerald-400 font-medium flex items-center gap-1">
-          <i class="fa-solid fa-shield-halved text-[10px]"></i> 100% Privado en tu Navegador
+        <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight">PDF Master Suite Pro</h1>
+        <p class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Motor Local Licenciado • 100% Seguro
         </p>
       </div>
     </div>
 
+    <!-- BOTONERA DE HISTORIAL Y ACCIONES PRIMARIAS -->
     <div class="flex items-center space-x-2 sm:space-x-3">
-      <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg cursor-pointer transition shadow-sm flex items-center gap-2">
+      
+      <!-- Controles de Historial (Deshacer / Rehacer) -->
+      <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5 mr-2">
+        <button id="btn-undo" title="Deshacer (Ctrl+Z)" class="p-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-md transition disabled:opacity-30 disabled:hover:bg-transparent">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+        </button>
+        <div class="w-[1px] h-4 bg-slate-700 my-auto"></div>
+        <button id="btn-redo" title="Rehacer (Ctrl+Y)" class="p-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-md transition disabled:opacity-30 disabled:hover:bg-transparent">
+          <i class="fa-solid fa-rotate-right text-xs"></i>
+        </button>
+      </div>
+
+      <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg cursor-pointer transition shadow-md flex items-center gap-2">
         <i class="fa-solid fa-folder-open"></i>
         <span class="hidden sm:inline">Abrir PDF</span>
         <input type="file" id="pdf-input" accept="application/pdf" class="hidden" />
       </label>
 
-      <button id="btn-export" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
-        <i class="fa-solid fa-download"></i>
-        <span class="hidden sm:inline">Guardar PDF</span>
-      </button>
+      <!-- Menú Desplegable de Exportación Formatos -->
+      <div class="relative">
+        <button id="btn-export-menu" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Guardar / Exportar</span>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+        
+        <!-- Opciones de Formatos -->
+        <div id="export-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 hidden z-35">
+          <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Formatos de Salida</div>
+          <button id="export-pdf" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-pdf text-rose-500 w-4"></i> Documento PDF (.pdf)
+          </button>
+          <button id="export-png" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-image text-emerald-500 w-4"></i> Imagen Página Actual (.png)
+          </button>
+          <button id="export-txt" class="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-lines text-amber-500 w-4"></i> Extraer Textos Editables (.txt)
+          </button>
+        </div>
+      </div>
 
-      <button id="btn-guide" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
-        <i class="fa-solid fa-graduation-cap text-base"></i>
-        <span>Manual Fácil</span>
+      <button id="btn-guide" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+        <i class="fa-solid fa-circle-question"></i>
+        <span class="hidden md:inline">Ayuda</span>
       </button>
     </div>
   </header>
@@ -80,130 +114,163 @@
   <!-- ÁREA PRINCIPAL DE TRABAJO -->
   <div class="flex-1 flex overflow-hidden relative">
 
-    <!-- PANEL DE HERRAMIENTAS LATERAL -->
+    <!-- PANEL LATERAL DE HERRAMIENTAS AVANZADAS -->
     <aside class="w-full sm:w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-sm overflow-y-auto no-scrollbar">
       
-      <div class="p-4 border-b border-slate-100 font-semibold text-xs text-slate-400 uppercase tracking-wider hidden sm:block">
-        Herramientas de Edición
+      <div class="p-3.5 border-b border-slate-100 font-bold text-[11px] text-slate-400 uppercase tracking-wider hidden sm:flex items-center justify-between">
+        <span>Caja de Herramientas</span>
+        <i class="fa-solid fa-toolbox text-slate-400"></i>
       </div>
 
       <div class="p-3 space-y-4">
 
-        <!-- Modos de Interacción -->
+        <!-- Interacción -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Modo de Selección & Edición</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Modo Activo</label>
           <div class="grid grid-cols-2 gap-2">
-            <button id="tool-select" class="tool-btn bg-indigo-50 border-indigo-500 text-indigo-700 p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition">
+            <button id="tool-select" class="tool-btn bg-indigo-50 border-indigo-500 text-indigo-700 p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border transition">
               <i class="fa-solid fa-hand-pointer"></i> Seleccionar
             </button>
-            <button id="tool-delete" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-2">
+            <button id="tool-delete" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-trash-can"></i> Borrar
             </button>
           </div>
         </div>
 
-        <!-- Añadir Texto y Cobertura -->
+        <!-- Inserción de Textos y Notas -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Texto y Ocultación</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Textos y Anotaciones</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <button id="tool-text" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-font"></i> Texto
+            <button id="tool-text" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-font"></i> Texto Libre
             </button>
-            <button id="tool-sticky-note" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-note-sticky text-amber-500"></i> Nota Rápida
+            <button id="tool-sticky-note" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-note-sticky text-amber-500"></i> Nota Post-it
             </button>
           </div>
-          <button id="tool-whiteout" class="w-full p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2" title="Cubre texto u objetos con un parche blanco">
-            <i class="fa-solid fa-eraser"></i> Tapar / Ocultar (Parche Blanco)
+          <button id="tool-whiteout" class="w-full p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2" title="Parche corrector blanco para ocultar contenido">
+            <i class="fa-solid fa-eraser text-indigo-600"></i> Corrector / Parche Blanco
           </button>
         </div>
 
-        <!-- Opciones de Texto -->
-        <div id="text-options" class="p-3 bg-slate-50 rounded-lg space-y-2.5 border border-slate-200">
-          <span class="text-xs font-bold text-slate-600 block">Estilos de Texto Activo</span>
+        <!-- Panel de Estilos Tipográficos Masivos -->
+        <div id="text-options" class="p-3 bg-slate-50 rounded-xl space-y-2.5 border border-slate-200 shadow-inner">
+          <span class="text-xs font-bold text-slate-700 flex items-center justify-between">
+            <span>Tipografía & Fuente</span>
+            <i class="fa-solid fa-text-height text-slate-400"></i>
+          </span>
           <div>
-            <select id="font-family" class="w-full text-xs p-1.5 border border-slate-300 rounded bg-white">
-              <option value="Arial">Arial</option>
-              <option value="Helvetica">Helvetica</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Courier New">Courier New</option>
-              <option value="Comic Sans MS">Comic Sans</option>
-              <option value="Impact">Impact</option>
-              <option value="Georgia">Georgia</option>
+            <select id="font-family" class="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
+              <!-- Mas de 35 Fuentes Disponibles -->
+              <optgroup label="Corporativas & Clásicas">
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Palatino">Palatino</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+              </optgroup>
+              <optgroup label="Modernas & Web Sans">
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Inter" selected>Inter</option>
+                <option value="Quicksand">Quicksand</option>
+              </optgroup>
+              <optgroup label="Elegantes & Serif">
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="Cinzel">Cinzel</option>
+                <option value="Oswald">Oswald</option>
+              </optgroup>
+              <optgroup label="Manuscritas & Creativas">
+                <option value="Dancing Script">Dancing Script</option>
+                <option value="Pacifico">Pacifico</option>
+                <option value="Caveat">Caveat</option>
+                <option value="Bebas Neue">Bebas Neue</option>
+                <option value="Comic Sans MS">Comic Sans</option>
+                <option value="Impact">Impact</option>
+              </optgroup>
             </select>
           </div>
           <div class="flex items-center justify-between gap-1.5">
-            <input type="number" id="font-size" value="18" min="8" max="120" class="w-14 text-xs p-1.5 border border-slate-300 rounded text-center bg-white">
-            <input type="color" id="text-color" value="#000000" class="w-8 h-8 rounded border border-slate-300 cursor-pointer p-0 bg-white">
-            <button id="btn-bold" class="p-1.5 px-2 text-xs font-bold border border-slate-300 rounded bg-white hover:bg-slate-100">B</button>
-            <button id="btn-italic" class="p-1.5 px-2 text-xs italic border border-slate-300 rounded bg-white hover:bg-slate-100">I</button>
-            <button id="btn-underline" class="p-1.5 px-2 text-xs underline border border-slate-300 rounded bg-white hover:bg-slate-100">U</button>
+            <input type="number" id="font-size" value="16" min="8" max="150" title="Tamaño" class="w-14 text-xs p-1.5 border border-slate-300 rounded-lg text-center bg-white font-semibold">
+            <input type="color" id="text-color" value="#000000" title="Color de Texto" class="w-8 h-8 rounded-lg border border-slate-300 cursor-pointer p-0 bg-white">
+            <button id="btn-bold" title="Negrita" class="p-1.5 px-2.5 text-xs font-bold border border-slate-300 rounded-lg bg-white hover:bg-slate-100">B</button>
+            <button id="btn-italic" title="Cursiva" class="p-1.5 px-2.5 text-xs italic border border-slate-300 rounded-lg bg-white hover:bg-slate-100">I</button>
+            <button id="btn-underline" title="Subrayado" class="p-1.5 px-2.5 text-xs underline border border-slate-300 rounded-lg bg-white hover:bg-slate-100">U</button>
           </div>
         </div>
 
         <!-- Dibujo Manual y Resaltador -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Dibujo y Marcador</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Dibujo Libre & Firma</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
-            <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-pen"></i> Lápiz / Firma
+            <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-pen-nib"></i> Lápiz / Firma
             </button>
-            <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-highlighter text-yellow-500"></i> Resaltador
+            <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-highlighter text-amber-500"></i> Resaltador
             </button>
           </div>
-          <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
-            <label class="text-[11px] font-medium text-slate-600">Color Trazo:</label>
-            <input type="color" id="draw-color" value="#000000" class="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0 bg-white">
+          <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <label class="text-[11px] font-medium text-slate-600">Color:</label>
+            <input type="color" id="draw-color" value="#22c55e" class="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0 bg-white">
             <label class="text-[11px] font-medium text-slate-600 ml-auto">Grosor:</label>
-            <input type="range" id="draw-width" min="1" max="30" value="3" class="w-16">
+            <input type="range" id="draw-width" min="1" max="40" value="4" class="w-16 accent-indigo-600">
           </div>
         </div>
 
-        <!-- Formas Geométricas -->
+        <!-- Formas Geométricas Avanzadas -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Formas & Flechas</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Formas Vectoriales</label>
           <div class="grid grid-cols-4 gap-1.5">
-            <button id="tool-rect" title="Rectángulo" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+            <button id="tool-rect" title="Rectángulo" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center text-slate-700">
               <i class="fa-regular fa-square text-base"></i>
             </button>
-            <button id="tool-circle" title="Círculo" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+            <button id="tool-circle" title="Círculo" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center text-slate-700">
               <i class="fa-regular fa-circle text-base"></i>
             </button>
-            <button id="tool-line" title="Línea" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+            <button id="tool-line" title="Línea Recta" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center text-slate-700">
               <i class="fa-solid fa-slash text-base"></i>
             </button>
-            <button id="tool-arrow" title="Flecha" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center">
+            <button id="tool-arrow" title="Flecha de Apunte" class="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center text-slate-700">
               <i class="fa-solid fa-arrow-right text-base"></i>
             </button>
           </div>
         </div>
 
-        <!-- Insertar Imagen -->
+        <!-- Inserción de Imágenes / Sellos / Logos -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Imágenes o Logos</label>
-          <label class="w-full p-2 rounded-lg text-xs font-semibold border border-dashed border-slate-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-image"></i> Insertar Imagen
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Sellos & Imágenes</label>
+          <label class="w-full p-2.5 rounded-xl text-xs font-semibold border-2 border-dashed border-slate-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-image text-sm"></i> Insertar Sello / Logo / Foto
             <input type="file" id="image-input" accept="image/*" class="hidden" />
           </label>
         </div>
 
         <!-- Capas y Orden -->
         <div>
-          <label class="text-xs font-bold text-slate-500 block mb-2">Organización de Objetos</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Organización de Capas</label>
           <div class="grid grid-cols-2 gap-2">
-            <button id="btn-bring-forward" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-layer-group"></i> Traer Frente
+            <button id="btn-bring-forward" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-up"></i> Al Frente
             </button>
-            <button id="btn-send-backward" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-layer-group text-slate-400"></i> Enviar Fondo
+            <button id="btn-send-backward" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-down"></i> Al Fondo
             </button>
           </div>
         </div>
 
-        <!-- Modificación de Páginas -->
-        <div class="pt-2 border-t border-slate-200">
-          <label class="text-xs font-bold text-slate-500 block mb-2">Gestión de Páginas</label>
+        <!-- Gestión de Páginas del Documento -->
+        <div class="pt-3 border-t border-slate-200">
+          <label class="text-xs font-bold text-slate-600 block mb-1.5">Gestión de Páginas PDF</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button id="btn-rotate-left" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1">
               <i class="fa-solid fa-rotate-left"></i> Rotar -90°
@@ -220,53 +287,53 @@
       </div>
     </aside>
 
-    <!-- ÁREA DEL VISOR Y LIENZO EDICION -->
-    <main class="flex-1 bg-slate-200/70 flex flex-col overflow-hidden relative">
+    <!-- ÁREA DEL VISOR Y LIENZO DE TRABAJO -->
+    <main class="flex-1 bg-slate-200/80 flex flex-col overflow-hidden relative">
       
-      <!-- Barra Control de Navegación y Zoom -->
-      <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0">
-        <!-- Navegación de Páginas -->
-        <div class="flex items-center space-x-2">
-          <button id="btn-prev" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition disabled:opacity-30">
-            <i class="fa-solid fa-chevron-left"></i>
+      <!-- Barra Superior de Control de Pág & Zoom -->
+      <div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-10 shrink-0 shadow-sm">
+        <!-- Navegación -->
+        <div class="flex items-center space-x-2.5">
+          <button id="btn-prev" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
           </button>
-          <span class="text-xs font-medium text-slate-600">
-            Página <input type="number" id="page-num" value="1" min="1" class="w-12 text-center border border-slate-300 rounded py-0.5 mx-1"> de <span id="page-count">0</span>
+          <span class="text-xs font-semibold text-slate-600 flex items-center gap-1">
+            Pág. <input type="number" id="page-num" value="1" min="1" class="w-12 text-center border border-slate-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
           </span>
-          <button id="btn-next" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition disabled:opacity-30">
-            <i class="fa-solid fa-chevron-right"></i>
+          <button id="btn-next" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
           </button>
         </div>
 
-        <!-- Controles de Zoom -->
+        <!-- Zoom del Documento -->
         <div class="flex items-center space-x-2">
-          <button id="btn-zoom-out" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition">
-            <i class="fa-solid fa-magnifying-glass-minus"></i>
+          <button id="btn-zoom-out" title="Alejar Zoom" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
           </button>
-          <span id="zoom-value" class="text-xs font-semibold text-slate-600 min-w-[3rem] text-center">100%</span>
-          <button id="btn-zoom-in" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition">
-            <i class="fa-solid fa-magnifying-glass-plus"></i>
+          <span id="zoom-value" class="text-xs font-bold text-slate-700 min-w-[3.5rem] text-center bg-slate-100 py-1 rounded-md">125%</span>
+          <button id="btn-zoom-in" title="Acercar Zoom" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
           </button>
         </div>
       </div>
 
-      <!-- Espacio de Trabajo -->
+      <!-- Lienzo Desplazable -->
       <div id="viewport-container" class="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
         
         <!-- Estado Inicial Vacío -->
-        <div id="empty-state" class="my-auto text-center max-w-sm p-6 bg-white rounded-2xl shadow-xl border border-slate-100">
-          <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-            <i class="fa-solid fa-file-circle-plus"></i>
+        <div id="empty-state" class="my-auto text-center max-w-md p-8 bg-white rounded-2xl shadow-2xl border border-slate-100">
+          <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl shadow-inner">
+            <i class="fa-solid fa-file-pdf"></i>
           </div>
-          <h2 class="text-lg font-bold text-slate-800 mb-2">Comienza a Editar tu PDF</h2>
-          <p class="text-xs text-slate-500 mb-6">Selecciona cualquier archivo PDF de tu equipo. El procesamiento es 100% privado y no requiere internet.</p>
-          <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl cursor-pointer transition shadow-md inline-block">
-            Seleccionar Archivo
+          <h2 class="text-xl font-bold text-slate-900 mb-2">Editor PDF Licenciado Profesional</h2>
+          <p class="text-xs text-slate-500 mb-6 leading-relaxed">Carga cualquier contrato, factura o documento PDF. Edita textos, inserta firmas, aplica parches y exporta instantáneamente sin salir de tu navegador.</p>
+          <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-pointer transition shadow-lg inline-block">
+            <i class="fa-solid fa-folder-open mr-2"></i> Abrir Archivo PDF
             <input type="file" id="pdf-input-welcome" accept="application/pdf" class="hidden" />
           </label>
         </div>
 
-        <!-- Contenedor del Lienzo Editor -->
+        <!-- Contenedor del Lienzo Sincronizado -->
         <div id="editor-wrapper" class="relative hidden">
           <canvas id="pdf-canvas" class="absolute top-0 left-0 pointer-events-none"></canvas>
           <canvas id="fabric-canvas" class="relative"></canvas>
@@ -277,72 +344,56 @@
 
   </div>
 
-  <!-- MODAL: MANUAL DE USO -->
+  <!-- MODAL DE AYUDA Y ATAJOS DE TECLADO -->
   <div id="guide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       
-      <div class="bg-gradient-to-r from-amber-500 to-amber-600 p-4 sm:p-6 text-slate-950 flex justify-between items-center">
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 p-5 text-white flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="bg-white/20 p-2.5 rounded-xl">
-            <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+          <div class="bg-indigo-600 p-2.5 rounded-xl shadow">
+            <i class="fa-solid fa-keyboard text-xl"></i>
           </div>
           <div>
-            <h3 class="text-lg sm:text-xl font-bold">Manual de Uso del Editor</h3>
-            <p class="text-xs font-medium opacity-90">Instrucciones y trucos de edición rápida</p>
+            <h3 class="text-lg font-bold">Manual y Atajos de Teclado Pro</h3>
+            <p class="text-xs text-slate-300">Domina el editor como un profesional con comandos rápidos</p>
           </div>
         </div>
-        <button id="close-guide" class="text-slate-950/70 hover:text-slate-950 text-2xl font-bold p-1">
+        <button id="close-guide" class="text-slate-400 hover:text-white text-2xl font-bold p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto space-y-6 text-slate-700 text-sm">
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">1</div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-base mb-1">Abrir y Navegar</h4>
-            <p class="text-xs sm:text-sm text-slate-600">Carga cualquier archivo PDF desde el botón superior "Abrir PDF". Usa las flechas de la barra superior para moverte entre páginas o cambiar el zoom.</p>
+      <div class="p-6 overflow-y-auto space-y-4 text-slate-700 text-xs sm:text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="font-bold text-slate-900 block mb-1"><code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + Z</code></span>
+            Deshacer el último cambio o trazo realizado en la hoja.
           </div>
-        </div>
-
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">2</div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-base mb-1">Agregar Elementos</h4>
-            <p class="text-xs sm:text-sm text-slate-600">Puedes insertar textos, notas, formas, flechas, dibujos a mano y logotipos/imágenes en cualquier parte del archivo.</p>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="font-bold text-slate-900 block mb-1"><code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + Y</code> o <code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Ctrl+Shift+Z</code></span>
+            Rehacer la acción previamente deshecha.
           </div>
-        </div>
-
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">3</div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-base mb-1">Tapar Contenido Original</h4>
-            <p class="text-xs sm:text-sm text-slate-600">Haz clic en <strong>"Tapar / Ocultar"</strong> para dibujar un cuadro blanco que cubra texto o partes indeseadas del documento original.</p>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="font-bold text-slate-900 block mb-1"><code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + C</code> / <code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + V</code></span>
+            Copiar y pegar objetos seleccionados en el lienzo.
           </div>
-        </div>
-
-        <div class="flex gap-4 items-start">
-          <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-black text-lg flex items-center justify-center shrink-0">4</div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-base mb-1">Atajos Teclado</h4>
-            <p class="text-xs sm:text-sm text-slate-600">
-              - Presiona <code class="bg-slate-100 px-1 py-0.5 rounded border">Supr</code> para eliminar el objeto seleccionado.<br>
-              - Usa <code class="bg-slate-100 px-1 py-0.5 rounded border">Ctrl + C</code> y <code class="bg-slate-100 px-1 py-0.5 rounded border">Ctrl + V</code> para duplicar elementos.
-            </p>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="font-bold text-slate-900 block mb-1"><code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Supr</code> / <code class="bg-slate-200 px-1 py-0.5 rounded text-indigo-700">Backspace</code></span>
+            Eliminar el elemento activo o seleccionado.
           </div>
         </div>
       </div>
 
       <div class="p-4 bg-slate-50 border-t border-slate-200 text-center">
-        <button id="btn-understood" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl transition">
-          ¡Aceptar y Comenzar!
+        <button id="btn-understood" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl transition shadow">
+          ¡Entendido, comenzar a editar!
         </button>
       </div>
 
     </div>
   </div>
 
-  <!-- LÓGICA JAVASCRIPT COMPLETA Y CORREGIDA -->
+  <!-- MOTOR DE SCRIPT PROFESIONAL -->
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -355,6 +406,11 @@
     let rotations = {}; 
     let pageAnnotations = {}; 
     let copiedObject = null;
+
+    // Historial Avanzado para Deshacer / Rehacer
+    let historyStack = {}; // { pageNum: [json1, json2, ...] }
+    let redoStack = {};   // { pageNum: [jsonRedo1, ...] }
+    let isInternalChange = false;
 
     const pdfCanvas = document.getElementById('pdf-canvas');
     const pdfCtx = pdfCanvas.getContext('2d');
@@ -372,10 +428,14 @@
         freeDrawingBrush: new fabric.PencilBrush(),
       });
 
-      const saveState = () => saveCurrentPageAnnotations();
-      fabricCanvas.on('object:modified', saveState);
-      fabricCanvas.on('object:added', saveState);
-      fabricCanvas.on('object:removed', saveState);
+      const handleStateChange = () => {
+        if (isInternalChange) return;
+        saveHistoryState();
+      };
+
+      fabricCanvas.on('object:modified', handleStateChange);
+      fabricCanvas.on('object:added', handleStateChange);
+      fabricCanvas.on('object:removed', handleStateChange);
 
       fabricCanvas.on('selection:created', syncTextControls);
       fabricCanvas.on('selection:updated', syncTextControls);
@@ -386,6 +446,22 @@
       document.getElementById('pdf-input-welcome').addEventListener('change', handleFileSelect);
       document.getElementById('image-input').addEventListener('change', handleImageUpload);
 
+      // Menú desplegable de exportación
+      const exportMenuBtn = document.getElementById('btn-export-menu');
+      const exportDropdown = document.getElementById('export-dropdown');
+      
+      exportMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportDropdown.classList.toggle('hidden');
+      });
+
+      window.addEventListener('click', () => exportDropdown.classList.add('hidden'));
+
+      document.getElementById('export-pdf').addEventListener('click', () => exportFile('pdf'));
+      document.getElementById('export-png').addEventListener('click', () => exportFile('png'));
+      document.getElementById('export-txt').addEventListener('click', () => exportFile('txt'));
+
+      // Navegación
       document.getElementById('btn-prev').addEventListener('click', onPrevPage);
       document.getElementById('btn-next').addEventListener('click', onNextPage);
       document.getElementById('page-num').addEventListener('change', (e) => {
@@ -400,6 +476,7 @@
       document.getElementById('btn-zoom-in').addEventListener('click', () => { scale += 0.2; renderPage(pageNum); });
       document.getElementById('btn-zoom-out').addEventListener('click', () => { if (scale > 0.5) { scale -= 0.2; renderPage(pageNum); } });
 
+      // Herramientas
       document.getElementById('tool-select').addEventListener('click', () => setTool('select'));
       document.getElementById('tool-text').addEventListener('click', () => addText());
       document.getElementById('tool-sticky-note').addEventListener('click', () => addStickyNote());
@@ -412,10 +489,14 @@
       document.getElementById('tool-arrow').addEventListener('click', () => addShape('arrow'));
       document.getElementById('tool-delete').addEventListener('click', deleteSelectedObject);
 
+      // Historial Botones
+      document.getElementById('btn-undo').addEventListener('click', undoAction);
+      document.getElementById('btn-redo').addEventListener('click', redoAction);
+
+      // Tipografía
       document.getElementById('font-family').addEventListener('change', updateTextProperty);
       document.getElementById('font-size').addEventListener('change', updateTextProperty);
       document.getElementById('text-color').addEventListener('change', updateTextProperty);
-      
       document.getElementById('btn-bold').addEventListener('click', toggleBold);
       document.getElementById('btn-italic').addEventListener('click', toggleItalic);
       document.getElementById('btn-underline').addEventListener('click', toggleUnderline);
@@ -430,8 +511,7 @@
       document.getElementById('btn-rotate-right').addEventListener('click', () => rotatePage(90));
       document.getElementById('btn-delete-page').addEventListener('click', deleteCurrentPage);
 
-      document.getElementById('btn-export').addEventListener('click', exportPDF);
-
+      // Modal Guía
       document.getElementById('btn-guide').addEventListener('click', () => document.getElementById('guide-modal').classList.remove('hidden'));
       document.getElementById('close-guide').addEventListener('click', () => document.getElementById('guide-modal').classList.add('hidden'));
       document.getElementById('btn-understood').addEventListener('click', () => document.getElementById('guide-modal').classList.add('hidden'));
@@ -447,21 +527,36 @@
         const activeObj = fabricCanvas ? fabricCanvas.getActiveObject() : null;
         if (activeObj && activeObj.isEditing) return;
 
-        if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Ctrl + Z (Deshacer)
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redoAction();
+          } else {
+            undoAction();
+          }
+        }
+        // Ctrl + Y (Rehacer)
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+          e.preventDefault();
+          redoAction();
+        }
+        // Borrar
+        else if (e.key === 'Delete' || e.key === 'Backspace') {
           deleteSelectedObject();
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        } 
+        // Copiar
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
           if (activeObj) {
             activeObj.clone((cloned) => { copiedObject = cloned; });
           }
-        } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        } 
+        // Pegar
+        else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
           if (copiedObject) {
             copiedObject.clone((clonedObj) => {
               fabricCanvas.discardActiveObject();
-              clonedObj.set({
-                left: clonedObj.left + 15,
-                top: clonedObj.top + 15,
-                evented: true,
-              });
+              clonedObj.set({ left: clonedObj.left + 20, top: clonedObj.top + 20, evented: true });
               if (clonedObj.type === 'activeSelection') {
                 clonedObj.canvas = fabricCanvas;
                 clonedObj.forEachObject((obj) => fabricCanvas.add(obj));
@@ -469,14 +564,71 @@
               } else {
                 fabricCanvas.add(clonedObj);
               }
-              copiedObject.top += 15;
-              copiedObject.left += 15;
+              copiedObject.top += 20;
+              copiedObject.left += 20;
               fabricCanvas.setActiveObject(clonedObj);
               fabricCanvas.requestRenderAll();
+              saveHistoryState();
             });
           }
         }
       });
+    }
+
+    // GESTIÓN DE HISTORIAL (UNDO / REDO)
+    function saveHistoryState() {
+      if (!fabricCanvas || isInternalChange) return;
+      if (!historyStack[pageNum]) historyStack[pageNum] = [];
+      
+      const jsonState = JSON.stringify(fabricCanvas.toJSON());
+      const currentStack = historyStack[pageNum];
+      
+      // Evitar duplicados consecutivos
+      if (currentStack.length === 0 || currentStack[currentStack.length - 1] !== jsonState) {
+        currentStack.push(jsonState);
+        // Limpiar pila de rehacer al realizar una nueva acción
+        redoStack[pageNum] = [];
+      }
+      updateHistoryButtonsUI();
+    }
+
+    function undoAction() {
+      if (!historyStack[pageNum] || historyStack[pageNum].length <= 1) return;
+      
+      if (!redoStack[pageNum]) redoStack[pageNum] = [];
+      const currentState = historyStack[pageNum].pop();
+      redoStack[pageNum].push(currentState);
+
+      const previousState = historyStack[pageNum][historyStack[pageNum].length - 1];
+      isInternalChange = true;
+      fabricCanvas.loadFromJSON(previousState, () => {
+        fabricCanvas.renderAll();
+        isInternalChange = false;
+        updateHistoryButtonsUI();
+      });
+    }
+
+    function redoAction() {
+      if (!redoStack[pageNum] || redoStack[pageNum].length === 0) return;
+
+      const nextState = redoStack[pageNum].pop();
+      if (!historyStack[pageNum]) historyStack[pageNum] = [];
+      historyStack[pageNum].push(nextState);
+
+      isInternalChange = true;
+      fabricCanvas.loadFromJSON(nextState, () => {
+        fabricCanvas.renderAll();
+        isInternalChange = false;
+        updateHistoryButtonsUI();
+      });
+    }
+
+    function updateHistoryButtonsUI() {
+      const undoBtn = document.getElementById('btn-undo');
+      const redoBtn = document.getElementById('btn-redo');
+
+      undoBtn.disabled = !historyStack[pageNum] || historyStack[pageNum].length <= 1;
+      redoBtn.disabled = !redoStack[pageNum] || redoStack[pageNum].length === 0;
     }
 
     async function handleFileSelect(e) {
@@ -492,8 +644,11 @@
       pageNum = 1;
       rotations = {};
       pageAnnotations = {};
+      historyStack = {};
+      redoStack = {};
+
       document.getElementById('page-count').textContent = pdfDoc.numPages;
-      document.getElementById('btn-export').disabled = false;
+      document.getElementById('btn-export-menu').disabled = false;
 
       document.getElementById('empty-state').classList.add('hidden');
       document.getElementById('editor-wrapper').classList.remove('hidden');
@@ -511,11 +666,7 @@
       pdfCanvas.height = viewport.height;
       pdfCanvas.width = viewport.width;
 
-      const renderContext = {
-        canvasContext: pdfCtx,
-        viewport: viewport
-      };
-      
+      const renderContext = { canvasContext: pdfCtx, viewport: viewport };
       await page.render(renderContext).promise;
       pageRendering = false;
 
@@ -531,6 +682,7 @@
 
       document.getElementById('zoom-value').textContent = `${Math.round(scale * 100)}%`;
       document.getElementById('page-num').value = num;
+      updateHistoryButtonsUI();
     }
 
     function queueRenderPage(num) {
@@ -557,18 +709,25 @@
 
     function saveCurrentPageAnnotations() {
       if (!fabricCanvas) return;
-      pageAnnotations[pageNum] = fabricCanvas.toJSON();
+      const json = fabricCanvas.toJSON();
+      pageAnnotations[pageNum] = json;
     }
 
     function loadCurrentPageAnnotations() {
+      isInternalChange = true;
       fabricCanvas.clear();
+      
       if (pageAnnotations[pageNum]) {
         fabricCanvas.loadFromJSON(pageAnnotations[pageNum], () => {
           fabricCanvas.renderAll();
+          isInternalChange = false;
           setTool(currentTool);
+          updateHistoryButtonsUI();
         });
       } else {
+        isInternalChange = false;
         setTool(currentTool);
+        saveHistoryState();
       }
     }
 
@@ -581,8 +740,8 @@
         updateBrushProperties();
       } else if (tool === 'highlight') {
         fabricCanvas.isDrawingMode = true;
-        fabricCanvas.freeDrawingBrush.color = 'rgba(255, 255, 0, 0.4)';
-        fabricCanvas.freeDrawingBrush.width = 22;
+        fabricCanvas.freeDrawingBrush.color = 'rgba(250, 204, 21, 0.45)';
+        fabricCanvas.freeDrawingBrush.width = 25;
       }
     }
 
@@ -601,7 +760,7 @@
       const size = parseInt(document.getElementById('font-size').value);
       const color = document.getElementById('text-color').value;
 
-      const text = new fabric.IText('Haz clic para editar texto', {
+      const text = new fabric.IText('Escribe tu texto aquí...', {
         left: fabricCanvas.width / 4,
         top: fabricCanvas.height / 4,
         fontFamily: font,
@@ -611,28 +770,30 @@
 
       fabricCanvas.add(text);
       fabricCanvas.setActiveObject(text);
+      saveHistoryState();
     }
 
     function addStickyNote() {
       setTool('select');
       const rect = new fabric.Rect({
-        width: 140, height: 100, fill: '#fef08a', stroke: '#facc15', strokeWidth: 1, rx: 4, ry: 4
+        width: 160, height: 110, fill: '#fef08a', stroke: '#facc15', strokeWidth: 1, rx: 6, ry: 6, shadow: 'rgba(0,0,0,0.15) 2px 4px 10px'
       });
-      const text = new fabric.IText('Nota rápida...', {
-        fontSize: 14, fontFamily: 'Arial', fill: '#854d0e', left: 10, top: 10
+      const text = new fabric.IText('Nota de revisión...', {
+        fontSize: 14, fontFamily: 'Inter', fill: '#713f12', left: 12, top: 12, width: 135
       });
       const group = new fabric.Group([rect, text], {
         left: fabricCanvas.width / 3, top: fabricCanvas.height / 3
       });
       fabricCanvas.add(group);
       fabricCanvas.setActiveObject(group);
+      saveHistoryState();
     }
 
     function syncTextControls() {
       const activeObj = fabricCanvas.getActiveObject();
       if (activeObj && activeObj.type === 'i-text') {
-        document.getElementById('font-family').value = activeObj.fontFamily || 'Arial';
-        document.getElementById('font-size').value = activeObj.fontSize || 18;
+        document.getElementById('font-family').value = activeObj.fontFamily || 'Inter';
+        document.getElementById('font-size').value = activeObj.fontSize || 16;
         document.getElementById('text-color').value = activeObj.fill || '#000000';
       }
     }
@@ -646,6 +807,7 @@
           fill: document.getElementById('text-color').value,
         });
         fabricCanvas.renderAll();
+        saveHistoryState();
       }
     }
 
@@ -654,6 +816,7 @@
       if (activeObj && activeObj.type === 'i-text') {
         activeObj.set('fontWeight', activeObj.fontWeight === 'bold' ? 'normal' : 'bold');
         fabricCanvas.renderAll();
+        saveHistoryState();
       }
     }
 
@@ -662,6 +825,7 @@
       if (activeObj && activeObj.type === 'i-text') {
         activeObj.set('fontStyle', activeObj.fontStyle === 'italic' ? 'normal' : 'italic');
         fabricCanvas.renderAll();
+        saveHistoryState();
       }
     }
 
@@ -670,6 +834,7 @@
       if (activeObj && activeObj.type === 'i-text') {
         activeObj.set('underline', !activeObj.underline);
         fabricCanvas.renderAll();
+        saveHistoryState();
       }
     }
 
@@ -678,14 +843,15 @@
       const rect = new fabric.Rect({
         left: fabricCanvas.width / 3,
         top: fabricCanvas.height / 3,
-        width: 150,
-        height: 30,
+        width: 180,
+        height: 35,
         fill: '#ffffff',
-        stroke: '#cbd5e1',
+        stroke: '#e2e8f0',
         strokeWidth: 1,
       });
       fabricCanvas.add(rect);
       fabricCanvas.setActiveObject(rect);
+      saveHistoryState();
     }
 
     function addShape(shapeType) {
@@ -693,41 +859,38 @@
       let shape;
 
       if (shapeType === 'rect') {
-        shape = new fabric.Rect({
-          left: 100, top: 100, width: 120, height: 70,
-          fill: 'transparent', stroke: '#16a34a', strokeWidth: 2
-        });
+        shape = new fabric.Rect({ left: 100, top: 100, width: 140, height: 80, fill: 'transparent', stroke: '#2563eb', strokeWidth: 2.5 });
       } else if (shapeType === 'circle') {
-        shape = new fabric.Circle({
-          left: 100, top: 100, radius: 45,
-          fill: 'transparent', stroke: '#16a34a', strokeWidth: 2
-        });
+        shape = new fabric.Circle({ left: 100, top: 100, radius: 50, fill: 'transparent', stroke: '#2563eb', strokeWidth: 2.5 });
       } else if (shapeType === 'line') {
-        shape = new fabric.Line([50, 100, 200, 100], {
-          stroke: '#16a34a', strokeWidth: 3
-        });
+        shape = new fabric.Line([50, 100, 220, 100], { stroke: '#2563eb', strokeWidth: 3 });
       } else if (shapeType === 'arrow') {
-        const line = new fabric.Line([0, 10, 100, 10], { stroke: '#16a34a', strokeWidth: 3 });
-        const triangle = new fabric.Triangle({
-          left: 100, top: 0, pointX: 10, pointY: 10, width: 15, height: 20, fill: '#16a34a', angle: 90
-        });
+        const line = new fabric.Line([0, 10, 110, 10], { stroke: '#2563eb', strokeWidth: 3 });
+        const triangle = new fabric.Triangle({ left: 110, top: 0, pointX: 10, pointY: 10, width: 16, height: 22, fill: '#2563eb', angle: 90 });
         shape = new fabric.Group([line, triangle], { left: 100, top: 100 });
       }
 
       if (shape) {
         fabricCanvas.add(shape);
         fabricCanvas.setActiveObject(shape);
+        saveHistoryState();
       }
     }
 
     function bringForward() {
       const activeObj = fabricCanvas.getActiveObject();
-      if (activeObj) fabricCanvas.bringForward(activeObj);
+      if (activeObj) {
+        fabricCanvas.bringForward(activeObj);
+        saveHistoryState();
+      }
     }
 
     function sendBackward() {
       const activeObj = fabricCanvas.getActiveObject();
-      if (activeObj) fabricCanvas.sendBackwards(activeObj);
+      if (activeObj) {
+        fabricCanvas.sendBackwards(activeObj);
+        saveHistoryState();
+      }
     }
 
     function handleImageUpload(e) {
@@ -742,6 +905,7 @@
           img.set({ left: 100, top: 100 });
           fabricCanvas.add(img);
           fabricCanvas.setActiveObject(img);
+          saveHistoryState();
         });
       };
       reader.readAsDataURL(file);
@@ -753,6 +917,7 @@
         activeObjects.forEach((obj) => fabricCanvas.remove(obj));
         fabricCanvas.discardActiveObject();
         fabricCanvas.requestRenderAll();
+        saveHistoryState();
       }
     }
 
@@ -763,7 +928,7 @@
 
     async function deleteCurrentPage() {
       if (!pdfDoc || pdfDoc.numPages <= 1) {
-        alert("No se puede eliminar la única página del documento.");
+        alert("No es posible eliminar la última página restante del documento.");
         return;
       }
 
@@ -771,85 +936,98 @@
 
       const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
       pdfDocLib.removePage(pageNum - 1);
-
       originalPdfBytes = await pdfDocLib.save();
 
       const loadingTask = pdfjsLib.getDocument({ data: originalPdfBytes });
       pdfDoc = await loadingTask.promise;
 
       delete pageAnnotations[pageNum];
-      
-      if (pageNum > pdfDoc.numPages) {
-        pageNum = pdfDoc.numPages;
-      }
+      if (pageNum > pdfDoc.numPages) pageNum = pdfDoc.numPages;
 
       document.getElementById('page-count').textContent = pdfDoc.numPages;
       renderPage(pageNum);
     }
 
-    async function exportPDF() {
+    // SISTEMA DE EXPORTACIÓN Y GUARDADO MULTIFORMATO
+    async function exportFile(type) {
       if (!originalPdfBytes) return;
-
       saveCurrentPageAnnotations();
 
-      const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
-      const pages = pdfDocLib.getPages();
+      if (type === 'pdf') {
+        const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
+        const pages = pdfDocLib.getPages();
 
-      for (let i = 1; i <= pdfDoc.numPages; i++) {
-        const pdfPage = pages[i - 1];
-        
-        if (rotations[i]) {
-          const currentRotation = pdfPage.getRotation().angle;
-          pdfPage.setRotation(PDFLib.degrees(currentRotation + rotations[i]));
-        }
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+          const pdfPage = pages[i - 1];
+          if (rotations[i]) {
+            const currentRotation = pdfPage.getRotation().angle;
+            pdfPage.setRotation(PDFLib.degrees(currentRotation + rotations[i]));
+          }
 
-        if (pageAnnotations[i] && pageAnnotations[i].objects && pageAnnotations[i].objects.length > 0) {
-          const tempCanvasElem = document.createElement('canvas');
-          const pageViewport = (await pdfDoc.getPage(i)).getViewport({ scale: 1.0, rotation: 0 });
-          
-          tempCanvasElem.width = pageViewport.width;
-          tempCanvasElem.height = pageViewport.height;
+          if (pageAnnotations[i] && pageAnnotations[i].objects && pageAnnotations[i].objects.length > 0) {
+            const tempCanvasElem = document.createElement('canvas');
+            const pageViewport = (await pdfDoc.getPage(i)).getViewport({ scale: 1.0, rotation: 0 });
+            
+            tempCanvasElem.width = pageViewport.width;
+            tempCanvasElem.height = pageViewport.height;
 
-          const tempFabric = new fabric.Canvas(tempCanvasElem);
+            const tempFabric = new fabric.Canvas(tempCanvasElem);
 
-          await new Promise((resolve) => {
-            tempFabric.loadFromJSON(pageAnnotations[i], () => {
-              const objects = tempFabric.getObjects();
-              const currentScale = scale;
-              
-              objects.forEach((obj) => {
-                obj.scaleX /= currentScale;
-                obj.scaleY /= currentScale;
-                obj.left /= currentScale;
-                obj.top /= currentScale;
-                obj.setCoordinates();
+            await new Promise((resolve) => {
+              tempFabric.loadFromJSON(pageAnnotations[i], () => {
+                const objects = tempFabric.getObjects();
+                const currentScale = scale;
+                objects.forEach((obj) => {
+                  obj.scaleX /= currentScale;
+                  obj.scaleY /= currentScale;
+                  obj.left /= currentScale;
+                  obj.top /= currentScale;
+                  obj.setCoordinates();
+                });
+                tempFabric.renderAll();
+                resolve();
               });
-
-              tempFabric.renderAll();
-              resolve();
             });
-          });
 
-          const dataUrl = tempCanvasElem.toDataURL({ format: 'png', multiplier: 2 });
-          const pngImage = await pdfDocLib.embedPng(dataUrl);
-
-          const { width, height } = pdfPage.getSize();
-          pdfPage.drawImage(pngImage, {
-            x: 0,
-            y: 0,
-            width: width,
-            height: height,
-          });
-
-          tempFabric.dispose();
+            const dataUrl = tempCanvasElem.toDataURL({ format: 'png', multiplier: 2 });
+            const pngImage = await pdfDocLib.embedPng(dataUrl);
+            const { width, height } = pdfPage.getSize();
+            pdfPage.drawImage(pngImage, { x: 0, y: 0, width: width, height: height });
+            tempFabric.dispose();
+          }
         }
-      }
 
-      const pdfBytes = await pdfDocLib.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const pdfBytes = await pdfDocLib.save();
+        downloadBlob(new Blob([pdfBytes], { type: 'application/pdf' }), 'documento_licenciado_pro.pdf');
+
+      } else if (type === 'png') {
+        const dataUrl = fabricCanvas.toDataURL({ format: 'png', multiplier: 2 });
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `pagina_${pageNum}_render.png`;
+        link.click();
+
+      } else if (type === 'txt') {
+        let allText = '';
+        Object.keys(pageAnnotations).forEach(p => {
+          if (pageAnnotations[p] && pageAnnotations[p].objects) {
+            pageAnnotations[p].objects.forEach(obj => {
+              if (obj.type === 'i-text' && obj.text) {
+                allText += `[Pág ${p}] ${obj.text}\n`;
+              }
+            });
+          }
+        });
+
+        const blob = new Blob([allText || 'No se han agregado textos editables en este documento.'], { type: 'text/plain;charset=utf-8' });
+        downloadBlob(blob, 'textos_extraidos_editor.txt');
+      }
+    }
+
+    function downloadBlob(blob, filename) {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'documento_editado.pdf';
+      link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
     }
