@@ -47,13 +47,14 @@ function setupEventListeners() {
   document.getElementById('pdf-input').addEventListener('change', handleFileSelect);
   document.getElementById('pdf-input-welcome').addEventListener('change', handleFileSelect);
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
+  
+  // Firma y sellos
   document.getElementById('btn-open-signature').addEventListener('click', openSignatureModal);
   document.getElementById('close-signature-modal').addEventListener('click', closeSignatureModal);
   document.getElementById('cancel-signature').addEventListener('click', closeSignatureModal);
   document.getElementById('clear-signature').addEventListener('click', clearSignaturePad);
   document.getElementById('insert-signature').addEventListener('click', insertSignatureToPDF);
 
-  // Sellos prediseñados
   document.getElementById('stamp-approved').addEventListener('click', () => addStamp('APROBADO', '#16a34a', '#dcfce7'));
   document.getElementById('stamp-rejected').addEventListener('click', () => addStamp('RECHAZADO', '#e11d48', '#ffe4e6'));
   document.getElementById('stamp-confidential').addEventListener('click', () => addStamp('CONFIDENCIAL', '#d97706', '#fef3c7'));
@@ -290,48 +291,6 @@ async function renderPage(num) {
 
     const renderContext = { canvasContext: pdfCtx, viewport: viewport };
     await page.render(renderContext).promise;
-
-    // Extraer texto nativo y crear un parche blanco (corrector) automático debajo de cada uno
-    if (!pageAnnotations[num]) {
-      const textContent = await page.getTextContent();
-      const extractedObjects = [];
-
-      textContent.items.forEach((item) => {
-        if (!item.str || item.str.trim() === '') return;
-
-        const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-        const fontSize = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]) || 12;
-        const estWidth = item.str.length * (fontSize * 0.55);
-
-        // Parche blanco para ocultar el texto original del PDF de fondo
-        const whiteout = new fabric.Rect({
-          left: tx[4] - 2,
-          top: tx[5] - fontSize - 2,
-          width: Math.max(estWidth + 4, 15),
-          height: fontSize * 1.4,
-          fill: '#ffffff',
-          stroke: '#ffffff',
-          strokeWidth: 1,
-          selectable: true,
-          evented: true
-        });
-
-        // Texto editable encima del parche
-        const textObj = new fabric.IText(item.str, {
-          left: tx[4],
-          top: tx[5] - fontSize,
-          fontSize: Math.max(8, fontSize),
-          fontFamily: 'Inter',
-          fill: '#000000',
-          selectable: true,
-        });
-
-        extractedObjects.push(whiteout);
-        extractedObjects.push(textObj);
-      });
-
-      pageAnnotations[num] = { objects: extractedObjects.map(o => o.toObject()) };
-    }
 
     pageRendering = false;
 
