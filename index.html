@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Master Suite Pro - Editor Licenciado</title>
   
-  <!-- Estilos CSS Nativos y Tailwind -->
+  <!-- Estilos Tailwind y FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Tipografías Masivas -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Poppins:wght@300;400;700&family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=Oswald:wght@400;700&family=Quicksand:wght@300;400;700&family=Cinzel:wght@400;700&family=Dancing+Script:wght@400;700&family=Pacifico&family=Caveat:wght@400;700&family=Bebas+Neue&family=Tahoma&family=Verdana&family=Trebuchet+MS&family=Garamond&family=Palatino&display=swap">
+  <!-- Tipografía principal optimizada -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 
   <!-- Estilos Personalizados -->
   <link rel="stylesheet" href="styles.css">
@@ -26,7 +26,7 @@
   <header class="bg-gray-900 text-white h-16 flex items-center justify-between px-4 sm:px-6 shadow-xl z-20 flex-shrink-0 border-b border-gray-800">
     <div class="flex items-center space-x-3">
       <div class="bg-indigo-600 p-2.5 rounded-xl flex items-center justify-center shadow-md">
-        <i class="fa-solid fa-file-shield text-xl text-white"></i>
+        <i class="fa-solid fa-file-shield text-xl text-white" aria-hidden="true"></i>
       </div>
       <div>
         <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight">PDF Master Suite Pro</h1>
@@ -36,48 +36,48 @@
       </div>
     </div>
 
-    <!-- ACCIONES Y HISTORIAL -->
+    <!-- ACCIONES E HISTORIAL -->
     <div class="flex items-center space-x-2 sm:space-x-3">
       <div class="flex items-center bg-gray-800 border border-gray-700 rounded-lg p-0.5 mr-2">
-        <button id="btn-undo" title="Deshacer (Ctrl+Z)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
-          <i class="fa-solid fa-rotate-left text-xs"></i>
+        <button id="btn-undo" aria-label="Deshacer cambio" title="Deshacer (Ctrl+Z)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
+          <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
         </button>
         <div class="w-[1px] h-4 bg-gray-700 my-auto"></div>
-        <button id="btn-redo" title="Rehacer (Ctrl+Y)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
-          <i class="fa-solid fa-rotate-right text-xs"></i>
+        <button id="btn-redo" aria-label="Rehacer cambio" title="Rehacer (Ctrl+Y)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
+          <i class="fa-solid fa-rotate-right text-xs" aria-hidden="true"></i>
         </button>
       </div>
 
       <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg cursor-pointer transition shadow-md flex items-center gap-2">
-        <i class="fa-solid fa-folder-open"></i>
+        <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
         <span class="hidden sm:inline">Abrir PDF</span>
-        <input type="file" id="pdf-input" accept="application/pdf" class="hidden" />
+        <input type="file" id="pdf-input" accept="application/pdf" aria-label="Abrir archivo PDF" class="hidden" />
       </label>
 
       <!-- EXPORTAR MENÚ -->
       <div class="relative">
-        <button id="btn-export-menu" disabled class="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-md flex items-center gap-2 focus:outline-none">
-          <i class="fa-solid fa-floppy-disk"></i>
+        <button id="btn-export-menu" aria-label="Menú de exportación" disabled class="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-md flex items-center gap-2 focus:outline-none">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
           <span>Guardar / Exportar</span>
-          <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1" aria-hidden="true"></i>
         </button>
         
         <div id="export-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 hidden z-30">
           <div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Formatos de Salida</div>
           <button id="export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
-            <i class="fa-solid fa-file-pdf text-red-500 w-4"></i> Documento PDF (.pdf)
+            <i class="fa-solid fa-file-pdf text-red-500 w-4" aria-hidden="true"></i> Documento PDF (.pdf)
           </button>
           <button id="export-png" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
-            <i class="fa-solid fa-file-image text-green-500 w-4"></i> Imagen Página Actual (.png)
+            <i class="fa-solid fa-file-image text-green-500 w-4" aria-hidden="true"></i> Imagen Página Actual (.png)
           </button>
           <button id="export-txt" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
-            <i class="fa-solid fa-file-lines text-amber-500 w-4"></i> Extraer Textos Editables (.txt)
+            <i class="fa-solid fa-file-lines text-amber-500 w-4" aria-hidden="true"></i> Extraer Textos Editables (.txt)
           </button>
         </div>
       </div>
 
-      <button id="btn-guide" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
-        <i class="fa-solid fa-circle-question"></i>
+      <button id="btn-guide" aria-label="Ayuda y atajos" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+        <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
         <span class="hidden md:inline">Ayuda</span>
       </button>
     </div>
@@ -90,7 +90,7 @@
     <aside class="w-full sm:w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-10 shadow-sm overflow-y-auto no-scrollbar">
       <div class="p-3.5 border-b border-gray-100 font-bold text-[11px] text-gray-400 uppercase tracking-wider hidden sm:flex items-center justify-between">
         <span>Caja de Herramientas</span>
-        <i class="fa-solid fa-toolbox text-gray-400"></i>
+        <i class="fa-solid fa-toolbox text-gray-400" aria-hidden="true"></i>
       </div>
 
       <div class="p-3 space-y-4">
@@ -98,10 +98,10 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Modo Activo</label>
           <div class="grid grid-cols-2 gap-2">
             <button id="tool-select" class="tool-btn bg-indigo-50 border border-indigo-500 text-indigo-700 p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
-              <i class="fa-solid fa-hand-pointer"></i> Seleccionar
+              <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Seleccionar
             </button>
             <button id="tool-delete" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-trash-can"></i> Borrar
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Borrar
             </button>
           </div>
         </div>
@@ -110,68 +110,45 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Textos y Anotaciones</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button id="tool-text" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-font"></i> Texto Libre
+              <i class="fa-solid fa-font" aria-hidden="true"></i> Texto Libre
             </button>
             <button id="tool-sticky-note" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-note-sticky text-amber-500"></i> Nota Post-it
+              <i class="fa-solid fa-note-sticky text-amber-500" aria-hidden="true"></i> Nota Post-it
             </button>
           </div>
           <button id="tool-whiteout" class="w-full p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-eraser text-indigo-600"></i> Corrector / Parche Blanco
+            <i class="fa-solid fa-eraser text-indigo-600" aria-hidden="true"></i> Corrector / Parche Blanco
           </button>
         </div>
 
-        <!-- FUENTES -->
+        <!-- CONTROLES DE TIPOGRAFÍA -->
         <div id="text-options" class="p-3 bg-gray-50 rounded-xl space-y-2.5 border border-gray-200">
           <span class="text-xs font-bold text-gray-700 flex items-center justify-between">
             <span>Tipografía & Fuente</span>
-            <i class="fa-solid fa-text-height text-gray-400"></i>
+            <i class="fa-solid fa-text-height text-gray-400" aria-hidden="true"></i>
           </span>
           <div>
+            <label for="font-family" class="sr-only">Seleccionar familia de fuente</label>
             <select id="font-family" class="w-full text-xs p-2 border border-gray-300 rounded-lg bg-white font-medium focus:outline-none">
-              <optgroup label="Corporativas & Clásicas">
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Garamond">Garamond</option>
-                <option value="Palatino">Palatino</option>
-                <option value="Tahoma">Tahoma</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Trebuchet MS">Trebuchet MS</option>
-              </optgroup>
-              <optgroup label="Modernas & Web Sans">
-                <option value="Roboto">Roboto</option>
-                <option value="Open Sans">Open Sans</option>
-                <option value="Lato">Lato</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Poppins">Poppins</option>
-                <option value="Inter" selected>Inter</option>
-                <option value="Quicksand">Quicksand</option>
-              </optgroup>
-              <optgroup label="Elegantes & Serif">
-                <option value="Playfair Display">Playfair Display</option>
-                <option value="Merriweather">Merriweather</option>
-                <option value="Cinzel">Cinzel</option>
-                <option value="Oswald">Oswald</option>
-              </optgroup>
-              <optgroup label="Manuscritas & Creativas">
-                <option value="Dancing Script">Dancing Script</option>
-                <option value="Pacifico">Pacifico</option>
-                <option value="Caveat">Caveat</option>
-                <option value="Bebas Neue">Bebas Neue</option>
-                <option value="Comic Sans MS">Comic Sans</option>
-                <option value="Impact">Impact</option>
-              </optgroup>
+              <option value="Inter" selected>Inter (Predeterminada)</option>
+              <option value="Arial">Arial</option>
+              <option value="Helvetica">Helvetica</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
             </select>
           </div>
           <div class="flex items-center justify-between gap-1.5">
-            <input type="number" id="font-size" value="16" min="8" max="150" class="w-14 text-xs p-1.5 border border-gray-300 rounded-lg text-center bg-white font-semibold">
-            <input type="color" id="text-color" value="#000000" class="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer p-0 bg-white">
-            <button id="btn-bold" class="p-1.5 px-2.5 text-xs font-bold border border-gray-300 rounded-lg bg-white hover:bg-gray-100">B</button>
-            <button id="btn-italic" class="p-1.5 px-2.5 text-xs italic border border-gray-300 rounded-lg bg-white hover:bg-gray-100">I</button>
-            <button id="btn-underline" class="p-1.5 px-2.5 text-xs underline border border-gray-300 rounded-lg bg-white hover:bg-gray-100">U</button>
+            <label for="font-size" class="sr-only">Tamaño de fuente</label>
+            <input type="number" id="font-size" value="16" min="8" max="150" aria-label="Tamaño de fuente" class="w-14 text-xs p-1.5 border border-gray-300 rounded-lg text-center bg-white font-semibold">
+            
+            <label for="text-color" class="sr-only">Color de texto</label>
+            <input type="color" id="text-color" value="#000000" aria-label="Color de texto" class="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer p-0 bg-white">
+            
+            <button id="btn-bold" aria-label="Negrita" class="p-1.5 px-2.5 text-xs font-bold border border-gray-300 rounded-lg bg-white hover:bg-gray-100">B</button>
+            <button id="btn-italic" aria-label="Cursiva" class="p-1.5 px-2.5 text-xs italic border border-gray-300 rounded-lg bg-white hover:bg-gray-100">I</button>
+            <button id="btn-underline" aria-label="Subrayado" class="p-1.5 px-2.5 text-xs underline border border-gray-300 rounded-lg bg-white hover:bg-gray-100">U</button>
           </div>
         </div>
 
@@ -179,34 +156,35 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Dibujo Libre & Firma</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-pen-nib"></i> Lápiz / Firma
+              <i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Lápiz / Firma
             </button>
             <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-highlighter text-amber-500"></i> Resaltador
+              <i class="fa-solid fa-highlighter text-amber-500" aria-hidden="true"></i> Resaltador
             </button>
           </div>
           <div class="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
-            <label class="text-[11px] font-medium text-gray-600">Color:</label>
-            <input type="color" id="draw-color" value="#22c55e" class="w-6 h-6 rounded border border-gray-300 cursor-pointer p-0 bg-white">
-            <label class="text-[11px] font-medium text-gray-600 ml-auto">Grosor:</label>
-            <input type="range" id="draw-width" min="1" max="40" value="4" class="w-16">
+            <label for="draw-color" class="text-[11px] font-medium text-gray-600">Color:</label>
+            <input type="color" id="draw-color" value="#22c55e" aria-label="Color de dibujo" class="w-6 h-6 rounded border border-gray-300 cursor-pointer p-0 bg-white">
+            
+            <label for="draw-width" class="text-[11px] font-medium text-gray-600 ml-auto">Grosor:</label>
+            <input type="range" id="draw-width" min="1" max="40" value="4" aria-label="Grosor de trazo" class="w-16">
           </div>
         </div>
 
         <div>
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Formas Vectoriales</label>
           <div class="grid grid-cols-4 gap-1.5">
-            <button id="tool-rect" title="Rectángulo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
-              <i class="fa-regular fa-square text-base"></i>
+            <button id="tool-rect" aria-label="Rectángulo" title="Rectángulo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-regular fa-square text-base" aria-hidden="true"></i>
             </button>
-            <button id="tool-circle" title="Círculo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
-              <i class="fa-regular fa-circle text-base"></i>
+            <button id="tool-circle" aria-label="Círculo" title="Círculo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-regular fa-circle text-base" aria-hidden="true"></i>
             </button>
-            <button id="tool-line" title="Línea Recta" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
-              <i class="fa-solid fa-slash text-base"></i>
+            <button id="tool-line" aria-label="Línea" title="Línea Recta" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-solid fa-slash text-base" aria-hidden="true"></i>
             </button>
-            <button id="tool-arrow" title="Flecha" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
-              <i class="fa-solid fa-arrow-right text-base"></i>
+            <button id="tool-arrow" aria-label="Flecha" title="Flecha" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-solid fa-arrow-right text-base" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -214,8 +192,8 @@
         <div>
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Sellos & Imágenes</label>
           <label class="w-full p-2.5 rounded-xl text-xs font-semibold border-2 border-dashed border-gray-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-image text-sm"></i> Insertar Sello / Logo / Foto
-            <input type="file" id="image-input" accept="image/*" class="hidden" />
+            <i class="fa-solid fa-image text-sm" aria-hidden="true"></i> Insertar Sello / Logo / Foto
+            <input type="file" id="image-input" accept="image/*" aria-label="Cargar imagen o sello" class="hidden" />
           </label>
         </div>
 
@@ -223,10 +201,10 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Organización de Capas</label>
           <div class="grid grid-cols-2 gap-2">
             <button id="btn-bring-forward" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-arrow-up"></i> Al Frente
+              <i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Al Frente
             </button>
             <button id="btn-send-backward" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-arrow-down"></i> Al Fondo
+              <i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Al Fondo
             </button>
           </div>
         </div>
@@ -235,14 +213,14 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Gestión de Páginas PDF</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button id="btn-rotate-left" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-rotate-left"></i> Rotar -90°
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Rotar -90°
             </button>
             <button id="btn-rotate-right" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-rotate-right"></i> Rotar +90°
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Rotar +90°
             </button>
           </div>
           <button id="btn-delete-page" class="w-full p-2 rounded-lg text-xs font-semibold border border-rose-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-file-circle-minus"></i> Eliminar Página Actual
+            <i class="fa-solid fa-file-circle-minus" aria-hidden="true"></i> Eliminar Página Actual
           </button>
         </div>
 
@@ -253,24 +231,24 @@
     <main class="flex-1 bg-gray-200/80 flex flex-col overflow-hidden relative">
       <div class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-10 flex-shrink-0 shadow-sm">
         <div class="flex items-center space-x-2.5">
-          <button id="btn-prev" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
-            <i class="fa-solid fa-chevron-left text-xs"></i>
+          <button id="btn-prev" aria-label="Página anterior" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
           </button>
           <span class="text-xs font-semibold text-gray-600 flex items-center gap-1">
-            Pág. <input type="number" id="page-num" value="1" min="1" class="w-12 text-center border border-gray-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
+            <label for="page-num">Pág.</label> <input type="number" id="page-num" value="1" min="1" aria-label="Número de página" class="w-12 text-center border border-gray-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
           </span>
-          <button id="btn-next" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
-            <i class="fa-solid fa-chevron-right text-xs"></i>
+          <button id="btn-next" aria-label="Página siguiente" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
           </button>
         </div>
 
         <div class="flex items-center space-x-2">
-          <button id="btn-zoom-out" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-            <i class="fa-solid fa-magnifying-glass-minus text-xs"></i>
+          <button id="btn-zoom-out" aria-label="Alejar zoom" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-minus text-xs" aria-hidden="true"></i>
           </button>
-          <span id="zoom-value" class="text-xs font-bold text-gray-700 min-w-[3.5rem] text-center bg-gray-100 py-1 rounded-md">125%</span>
-          <button id="btn-zoom-in" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-            <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+          <span id="zoom-value" class="text-xs font-bold text-gray-700 min-w-[3.5rem] text-center bg-gray-100 py-1 rounded-md">100%</span>
+          <button id="btn-zoom-in" aria-label="Acercar zoom" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-plus text-xs" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -278,13 +256,13 @@
       <div id="viewport-container" class="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
         <div id="empty-state" class="my-auto text-center max-w-md p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
           <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl shadow-inner">
-            <i class="fa-solid fa-file-pdf"></i>
+            <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Editor PDF Licenciado Profesional</h2>
           <p class="text-xs text-gray-500 mb-6 leading-relaxed">Carga cualquier contrato, factura o documento PDF. Edita textos, inserta firmas, aplica parches y exporta instantáneamente sin salir de tu navegador.</p>
           <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-pointer transition shadow-lg inline-block">
-            <i class="fa-solid fa-folder-open mr-2"></i> Abrir Archivo PDF
-            <input type="file" id="pdf-input-welcome" accept="application/pdf" class="hidden" />
+            <i class="fa-solid fa-folder-open mr-2" aria-hidden="true"></i> Abrir Archivo PDF
+            <input type="file" id="pdf-input-welcome" accept="application/pdf" aria-label="Cargar archivo PDF de bienvenida" class="hidden" />
           </label>
         </div>
 
@@ -302,15 +280,15 @@
       <div class="bg-gradient-to-r from-gray-900 to-indigo-950 p-5 text-white flex justify-between items-center">
         <div class="flex items-center gap-3">
           <div class="bg-indigo-600 p-2.5 rounded-xl shadow">
-            <i class="fa-solid fa-keyboard text-xl"></i>
+            <i class="fa-solid fa-keyboard text-xl" aria-hidden="true"></i>
           </div>
           <div>
             <h3 class="text-lg font-bold">Manual y Atajos de Teclado Pro</h3>
             <p class="text-xs text-gray-300">Domina el editor como un profesional</p>
           </div>
         </div>
-        <button id="close-guide" class="text-gray-400 hover:text-white text-2xl font-bold p-1">
-          <i class="fa-solid fa-xmark"></i>
+        <button id="close-guide" aria-label="Cerrar modal" class="text-gray-400 hover:text-white text-2xl font-bold p-1">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
 
