@@ -273,13 +273,42 @@ async function renderPage(num) {
     pdfCanvas.height = viewport.height;
     pdfCanvas.width = viewport.width;
 
-    // ASIGNAR TAMAÑO EXACTO AL CONTENEDOR PADRE PARA EVITAR QUE SE PONGA EN BLANCO
     const editorWrapper = document.getElementById('editor-wrapper');
     editorWrapper.style.width = `${viewport.width}px`;
     editorWrapper.style.height = `${viewport.height}px`;
 
     const renderContext = { canvasContext: pdfCtx, viewport: viewport };
     await page.render(renderContext).promise;
+
+    // Extraer texto nativo del PDF y convertirlo en cuadros de texto editables si no se ha editado antes
+    if (!pageAnnotations[num]) {
+      const textContent = await page.getTextContent();
+      const extractedObjects = [];
+
+      textContent.items.forEach((item) => {
+        if (!item.str || item.str.trim() === '') return;
+
+        // Calcular la posición exacta usando la matriz de transformación del texto del PDF
+        const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+        const fontSize = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]) || 12;
+
+        const textObj = new fabric.IText(item.str, {
+          left: tx[4],
+          top: tx[5] - fontSize,
+          fontSize: Math.max(8, fontSize),
+          fontFamily: 'Inter',
+          fill: '#000000',
+          selectable: true,
+        });
+        extractedObjects.push(textObj);
+      });
+
+      // Crear un objeto contenedor temporal para inicializar el canvas con los textos extraídos
+      const canvasJSON = {
+        objects: extractedObjects.map(o => o.toObject())
+      };
+      pageAnnotations[num] = canvasJSON;
+    }
 
     pageRendering = false;
 
