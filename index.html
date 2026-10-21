@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Master Suite Pro — Editor de documentos</title>
+  
+  <!-- Estilos Tailwind y FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Catálogo masivo de Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;700&family=Poppins:wght@300;400;500;700&family=Oswald:wght@400;600&family=Raleway:wght@300;400;700&family=Nunito:wght@300;400;700&family=Ubuntu:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=PT+Serif:wght@400;700&family=Fira+Code:wght@400;600&family=Source+Code+Pro:wght@400;600&family=Courier+Prime&family=Pacifico&family=Caveat:wght@400;700&display=swap">
+
+  <!-- Estilos Personalizados -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Librerías Externas PDF y Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+  <!-- Importadores por formato: no sustituyen a las aplicaciones originales, pero permiten leer estructuras comunes. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.7/build/opensheetmusicdisplay.min.js"></script>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased overflow-hidden select-none bg-gray-100">
+
+  <!-- ENCABEZADO SUPERIOR -->
+  <header class="bg-gray-900 text-white h-16 flex items-center justify-between px-4 sm:px-6 shadow-xl z-20 flex-shrink-0 border-b border-gray-800">
+    <div class="flex items-center space-x-3">
+      <div class="bg-indigo-600 p-2.5 rounded-xl flex items-center justify-center shadow-md">
+        <i class="fa-solid fa-file-shield text-xl text-white" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight leading-tight">PDF Master Suite Pro</h1>
+        <p class="text-xs text-green-400 font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span> Motor Local Seguro • 100% Protegido
+        </p>
+      </div>
+    </div>
+
+    <!-- ACCIONES E HISTORIAL -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <div class="flex items-center bg-gray-800 border border-gray-700 rounded-lg p-0.5 mr-2">
+        <button id="btn-undo" aria-label="Deshacer cambio" title="Deshacer (Ctrl+Z)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
+          <i class="fa-solid fa-rotate-left text-xs" aria-hidden="true"></i>
+        </button>
+        <div class="w-[1px] h-4 bg-gray-700 my-auto"></div>
+        <button id="btn-redo" aria-label="Rehacer cambio" title="Rehacer (Ctrl+Y)" class="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition focus:outline-none disabled:opacity-30">
+          <i class="fa-solid fa-rotate-right text-xs" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg cursor-pointer transition shadow-md flex items-center gap-2">
+        <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+        <span class="hidden sm:inline">Abrir archivo</span>
+        <input type="file" id="pdf-input" accept=".pdf,.txt,.md,.csv,.tsv,.json,.xml,.html,.htm,.rtf,.docx,.xlsx,.xls,.ods,.musicxml,.mxl,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg,.tif,.tiff,.doc,.ppt,.pptx,.odp,.odt,.zip" aria-label="Seleccionar archivo PDF para abrir" class="hidden" />
+      </label>
+
+      <!-- EXPORTAR MENÚ -->
+      <div class="relative">
+        <button id="btn-export-menu" aria-label="Menú de exportación" disabled class="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:opacity-50 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-md flex items-center gap-2 focus:outline-none">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          <span>Guardar / Exportar</span>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1" aria-hidden="true"></i>
+        </button>
+        
+        <div id="export-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 hidden z-30">
+          <div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Formatos de Salida</div>
+          <button id="export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-pdf text-red-500 w-4" aria-hidden="true"></i> Documento PDF (.pdf)
+          </button>
+          <button id="export-png" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-image text-green-500 w-4" aria-hidden="true"></i> Imagen Página Actual (.png)
+          </button>
+          <button id="export-txt" class="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-2 font-medium">
+            <i class="fa-solid fa-file-lines text-amber-500 w-4" aria-hidden="true"></i> Extraer Textos Editables (.txt)
+          </button>
+        </div>
+      </div>
+
+      <button id="btn-guide" aria-label="Ayuda y atajos de teclado" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+        <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+        <span class="hidden md:inline">Ayuda</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CUERPO PRINCIPAL -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- PANEL LATERAL -->
+    <aside class="w-full sm:w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-10 shadow-sm overflow-y-auto no-scrollbar">
+      <div class="p-3.5 border-b border-gray-100 font-bold text-[11px] text-gray-400 uppercase tracking-wider hidden sm:flex items-center justify-between">
+        <span>Caja de Herramientas Total</span>
+        <i class="fa-solid fa-toolbox text-gray-400" aria-hidden="true"></i>
+      </div>
+
+      <div class="p-3 space-y-4">
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Modo Activo</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="tool-select" class="tool-btn bg-indigo-50 border border-indigo-500 text-indigo-700 p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Seleccionar
+            </button>
+            <button id="tool-delete" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Borrar
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Textos y Anotaciones</label>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <button id="tool-text" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-font" aria-hidden="true"></i> Texto Libre
+            </button>
+            <button id="tool-sticky-note" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-note-sticky text-amber-500" aria-hidden="true"></i> Nota Post-it
+            </button>
+          </div>
+          <button id="tool-whiteout" class="w-full p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-eraser text-indigo-600" aria-hidden="true"></i> Corrector / Parche Blanco
+          </button>
+        </div>
+
+        <!-- CONTROLES DE TIPOGRAFÍA CON TODAS LAS FUENTES EXISTENTES -->
+        <div id="text-options" class="p-3 bg-gray-50 rounded-xl space-y-2.5 border border-gray-200">
+          <span class="text-xs font-bold text-gray-700 flex items-center justify-between">
+            <span>Tipografía & Fuente (Todas)</span>
+            <i class="fa-solid fa-text-height text-gray-400" aria-hidden="true"></i>
+          </span>
+          <div>
+            <label for="font-family" class="block text-[11px] font-semibold text-gray-600 mb-1">Familia tipográfica</label>
+            <select id="font-family" class="w-full text-xs p-2 border border-gray-300 rounded-lg bg-white font-medium focus:outline-none">
+              <optgroup label="Modernas & Web Popular">
+                <option value="Inter" selected>Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Oswald">Oswald</option>
+                <option value="Raleway">Raleway</option>
+                <option value="Nunito">Nunito</option>
+                <option value="Ubuntu">Ubuntu</option>
+              </optgroup>
+              <optgroup label="Clásicas / Serif">
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="PT Serif">PT Serif</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Palatino">Palatino</option>
+                <option value="Book Antiqua">Book Antiqua</option>
+              </optgroup>
+              <optgroup label="Sistema & Sans-Serif">
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Tahoma">Tahoma</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Century Gothic">Century Gothic</option>
+                <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+                <option value="Arial Black">Arial Black</option>
+                <option value="Geneva">Geneva</option>
+                <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+              </optgroup>
+              <optgroup label="Monoespaciadas & Código">
+                <option value="Courier New">Courier New</option>
+                <option value="Courier Prime">Courier Prime</option>
+                <option value="Fira Code">Fira Code</option>
+                <option value="Source Code Pro">Source Code Pro</option>
+                <option value="Consolas">Consolas</option>
+                <option value="Monaco">Monaco</option>
+              </optgroup>
+              <optgroup label="Manuscritas & Decorativas">
+                <option value="Caveat">Caveat</option>
+                <option value="Pacifico">Pacifico</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Impact">Impact</option>
+                <option value="Brush Script MT">Brush Script MT</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="flex items-center justify-between gap-1.5 pt-1">
+            <div>
+              <label for="font-size" class="block text-[10px] font-medium text-gray-500">Tamaño</label>
+              <input type="number" id="font-size" value="16" min="8" max="150" aria-label="Tamaño de fuente" class="w-14 text-xs p-1.5 border border-gray-300 rounded-lg text-center bg-white font-semibold">
+            </div>
+            <div>
+              <label for="text-color" class="block text-[10px] font-medium text-gray-500">Color</label>
+              <input type="color" id="text-color" value="#000000" aria-label="Color del texto" class="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer p-0 bg-white block">
+            </div>
+            <div class="flex items-center gap-1 mt-3">
+              <button id="btn-bold" aria-label="Negrita" class="p-1.5 px-2.5 text-xs font-bold border border-gray-300 rounded-lg bg-white hover:bg-gray-100">B</button>
+              <button id="btn-italic" aria-label="Cursiva" class="p-1.5 px-2.5 text-xs italic border border-gray-300 rounded-lg bg-white hover:bg-gray-100">I</button>
+              <button id="btn-underline" aria-label="Subrayado" class="p-1.5 px-2.5 text-xs underline border border-gray-300 rounded-lg bg-white hover:bg-gray-100">U</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Dibujo Libre & Resaltador</label>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Lápiz Libre
+            </button>
+            <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-highlighter text-amber-500" aria-hidden="true"></i> Resaltador
+            </button>
+          </div>
+          <div class="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
+            <label for="draw-color" class="text-[11px] font-medium text-gray-600">Color:</label>
+            <input type="color" id="draw-color" value="#22c55e" aria-label="Color de trazo o dibujo" class="w-6 h-6 rounded border border-gray-300 cursor-pointer p-0 bg-white">
+            
+            <label for="draw-width" class="text-[11px] font-medium text-gray-600 ml-auto">Grosor:</label>
+            <input type="range" id="draw-width" min="1" max="40" value="4" aria-label="Grosor de línea o pincel" class="w-16">
+          </div>
+        </div>
+
+        <!-- FIRMA A MANO ALZADA Y SELLOS -->
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Firmas y Sellos Digitales</label>
+          <button id="btn-open-signature" class="w-full p-2.5 mb-2 rounded-xl text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-signature text-sm" aria-hidden="true"></i> Dibujar Firma a Mano Alzada
+          </button>
+          <div class="grid grid-cols-2 gap-1.5 mb-2">
+            <button id="stamp-approved" class="p-1.5 rounded-lg text-[10px] font-bold border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 transition">APROBADO</button>
+            <button id="stamp-rejected" class="p-1.5 rounded-lg text-[10px] font-bold border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 transition">RECHAZADO</button>
+            <button id="stamp-confidential" class="p-1.5 rounded-lg text-[10px] font-bold border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition">CONFIDENCIAL</button>
+            <button id="stamp-signed" class="p-1.5 rounded-lg text-[10px] font-bold border border-indigo-300 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition">FIRMADO</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Formas Vectoriales</label>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button id="tool-rect" aria-label="Rectángulo" title="Rectángulo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-regular fa-square text-base" aria-hidden="true"></i>
+            </button>
+            <button id="tool-circle" aria-label="Círculo" title="Círculo" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-regular fa-circle text-base" aria-hidden="true"></i>
+            </button>
+            <button id="tool-line" aria-label="Línea" title="Línea Recta" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-solid fa-slash text-base" aria-hidden="true"></i>
+            </button>
+            <button id="tool-arrow" aria-label="Flecha" title="Flecha" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center justify-center text-gray-700">
+              <i class="fa-solid fa-arrow-right text-base" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Insertar Imágenes o Sellos</label>
+          <label class="w-full p-2.5 rounded-xl text-xs font-semibold border-2 border-dashed border-gray-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-image text-sm" aria-hidden="true"></i> Subir Sello / Logo (PNG/JPG)
+            <input type="file" id="image-input" accept="image/*" aria-label="Subir archivo de imagen o sello" class="hidden" />
+          </label>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Organización de Capas</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-bring-forward" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Al Frente
+            </button>
+            <button id="btn-send-backward" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Al Fondo
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200">
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Gestión de Páginas PDF</label>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <button id="btn-rotate-left" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Rotar -90°
+            </button>
+            <button id="btn-rotate-right" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Rotar +90°
+            </button>
+          </div>
+          <button id="btn-delete-page" class="w-full p-2 rounded-lg text-xs font-semibold border border-rose-200 text-rose-600 hover:bg-rose-50 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-circle-minus" aria-hidden="true"></i> Eliminar Página Actual
+          </button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ÁREA DE VISOR -->
+    <main class="flex-1 bg-gray-200/80 flex flex-col overflow-hidden relative">
+      <div class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-10 flex-shrink-0 shadow-sm">
+        <div class="flex items-center space-x-2.5">
+          <button id="btn-prev" aria-label="Página anterior" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
+          </button>
+          <span class="text-xs font-semibold text-gray-600 flex items-center gap-1">
+            <label for="page-num">Pág.</label> <input type="number" id="page-num" value="1" min="1" aria-label="Número de página actual" class="w-12 text-center border border-gray-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
+          </span>
+          <button id="btn-next" aria-label="Página siguiente" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
+            <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button id="btn-zoom-out" aria-label="Alejar zoom" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-minus text-xs" aria-hidden="true"></i>
+          </button>
+          <span id="zoom-value" class="text-xs font-bold text-gray-700 min-w-[3.5rem] text-center bg-gray-100 py-1 rounded-md">100%</span>
+          <button id="btn-zoom-in" aria-label="Acercar zoom" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition">
+            <i class="fa-solid fa-magnifying-glass-plus text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="viewport-container" class="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
+        <div id="empty-state" class="my-auto text-center max-w-md p-8 bg-white rounded-2xl shadow-2xl border border-gray-100">
+          <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl shadow-inner">
+            <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Editor PDF Licenciado Profesional</h2>
+          <p class="text-xs text-gray-500 mb-6 leading-relaxed">Carga un PDF para convertir sus textos en objetos editables, moverlos, cambiar su tamaño, borrarlos y añadir anotaciones. Los diseños complejos, tablas y gráficos pueden requerir ajustes manuales.</p>
+          <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-pointer transition shadow-lg inline-block">
+            <i class="fa-solid fa-folder-open mr-2" aria-hidden="true"></i> Abrir archivo
+            <input type="file" id="pdf-input-welcome" accept=".pdf,.txt,.md,.csv,.tsv,.json,.xml,.html,.htm,.rtf,.docx,.xlsx,.xls,.ods,.musicxml,.mxl,.png,.jpg,.jpeg,.webp,.gif,.bmp,.svg,.tif,.tiff,.doc,.ppt,.pptx,.odp,.odt,.zip" aria-label="Abrir archivo PDF desde la pantalla de bienvenida" class="hidden" />
+          </label>
+        </div>
+
+        <div id="editable-import-status" class="absolute top-2 left-2 z-10 bg-indigo-50 text-indigo-700 text-[10px] font-semibold px-2 py-1 rounded shadow-sm pointer-events-none"></div>
+        <div id="editor-wrapper" class="relative hidden">
+          <canvas id="pdf-canvas" class="absolute top-0 left-0 pointer-events-none"></canvas>
+          <canvas id="fabric-canvas" class="relative"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL DE FIRMA DIGITAL A MANO ALZADA -->
+  <div id="signature-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full flex flex-col shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-gray-900 to-indigo-950 p-4 text-white flex justify-between items-center">
+        <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-signature"></i> Crear Firma Digital</h3>
+        <button id="close-signature-modal" aria-label="Cerrar modal de firma" class="text-gray-400 hover:text-white text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <p class="text-xs text-gray-500">Dibuja tu firma a mano alzada en el recuadro inferior:</p>
+        <div class="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden bg-gray-50">
+          <canvas id="signature-pad-canvas" width="380" height="160" class="w-full cursor-crosshair"></canvas>
+        </div>
+        <div class="flex items-center justify-between">
+          <button id="clear-signature" class="text-xs text-rose-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> Limpiar recuadro</button>
+          <div class="flex items-center gap-2">
+            <label for="sig-color" class="text-xs text-gray-600 font-medium">Color de tinta:</label>
+            <input type="color" id="sig-color" value="#0000ff" class="w-7 h-7 rounded border cursor-pointer p-0 bg-white">
+          </div>
+        </div>
+      </div>
+      <div class="p-3 bg-gray-50 border-t flex justify-end gap-2">
+        <button id="cancel-signature" class="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button id="insert-signature" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition">Insertar en PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE AYUDA -->
+  <div id="guide-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-gray-900 to-indigo-950 p-5 text-white flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="bg-indigo-600 p-2.5 rounded-xl shadow">
+            <i class="fa-solid fa-keyboard text-xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">Manual y Atajos de Teclado Pro</h3>
+            <p class="text-xs text-gray-300">Domina el editor como un profesional</p>
+          </div>
+        </div>
+        <button id="close-guide" aria-label="Cerrar ventana de ayuda" class="text-gray-400 hover:text-white text-2xl font-bold p-1">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-gray-700 text-xs sm:text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <span class="font-bold text-gray-900 block mb-1"><code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + Z</code></span>
+            Deshacer el último cambio o trazo realizado.
+          </div>
+          <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <span class="font-bold text-gray-900 block mb-1"><code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + Y</code></span>
+            Rehacer la acción previamente deshecha.
+          </div>
+          <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <span class="font-bold text-gray-900 block mb-1"><code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + C</code> / <code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Ctrl + V</code></span>
+            Copiar y pegar objetos seleccionados.
+          </div>
+          <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <span class="font-bold text-gray-900 block mb-1"><code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Supr</code> / <code class="bg-gray-200 px-1 py-0.5 rounded text-indigo-700">Backspace</code></span>
+            Eliminar el elemento seleccionado.
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-gray-50 border-t border-gray-200 text-center">
+        <button id="btn-understood" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl transition shadow">
+          ¡Entendido, comenzar a editar!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enlace al Script Modular -->
+  <script src="app.js"></script>
+</body>
+</html>
