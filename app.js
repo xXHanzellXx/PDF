@@ -47,6 +47,17 @@ function setupEventListeners() {
   document.getElementById('pdf-input').addEventListener('change', handleFileSelect);
   document.getElementById('pdf-input-welcome').addEventListener('change', handleFileSelect);
   document.getElementById('image-input').addEventListener('change', handleImageUpload);
+  document.getElementById('btn-open-signature').addEventListener('click', openSignatureModal);
+  document.getElementById('close-signature-modal').addEventListener('click', closeSignatureModal);
+  document.getElementById('cancel-signature').addEventListener('click', closeSignatureModal);
+  document.getElementById('clear-signature').addEventListener('click', clearSignaturePad);
+  document.getElementById('insert-signature').addEventListener('click', insertSignatureToPDF);
+
+  // Sellos prediseñados
+  document.getElementById('stamp-approved').addEventListener('click', () => addStamp('APROBADO', '#16a34a', '#dcfce7'));
+  document.getElementById('stamp-rejected').addEventListener('click', () => addStamp('RECHAZADO', '#e11d48', '#ffe4e6'));
+  document.getElementById('stamp-confidential').addEventListener('click', () => addStamp('CONFIDENCIAL', '#d97706', '#fef3c7'));
+  document.getElementById('stamp-signed').addEventListener('click', () => addStamp('FIRMADO', '#4f46e5', '#e0e7ff'));
 
   const exportMenuBtn = document.getElementById('btn-export-menu');
   const exportDropdown = document.getElementById('export-dropdown');
@@ -280,7 +291,7 @@ async function renderPage(num) {
     const renderContext = { canvasContext: pdfCtx, viewport: viewport };
     await page.render(renderContext).promise;
 
-    // Extraer texto nativo del PDF y convertirlo en cuadros de texto editables si no se ha editado antes
+    // Extraer texto nativo y crear un parche blanco (corrector) automático debajo de cada uno
     if (!pageAnnotations[num]) {
       const textContent = await page.getTextContent();
       const extractedObjects = [];
@@ -288,10 +299,24 @@ async function renderPage(num) {
       textContent.items.forEach((item) => {
         if (!item.str || item.str.trim() === '') return;
 
-        // Calcular la posición exacta usando la matriz de transformación del texto del PDF
         const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
         const fontSize = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]) || 12;
+        const estWidth = item.str.length * (fontSize * 0.55);
 
+        // Parche blanco para ocultar el texto original del PDF de fondo
+        const whiteout = new fabric.Rect({
+          left: tx[4] - 2,
+          top: tx[5] - fontSize - 2,
+          width: Math.max(estWidth + 4, 15),
+          height: fontSize * 1.4,
+          fill: '#ffffff',
+          stroke: '#ffffff',
+          strokeWidth: 1,
+          selectable: true,
+          evented: true
+        });
+
+        // Texto editable encima del parche
         const textObj = new fabric.IText(item.str, {
           left: tx[4],
           top: tx[5] - fontSize,
@@ -300,14 +325,12 @@ async function renderPage(num) {
           fill: '#000000',
           selectable: true,
         });
+
+        extractedObjects.push(whiteout);
         extractedObjects.push(textObj);
       });
 
-      // Crear un objeto contenedor temporal para inicializar el canvas con los textos extraídos
-      const canvasJSON = {
-        objects: extractedObjects.map(o => o.toObject())
-      };
-      pageAnnotations[num] = canvasJSON;
+      pageAnnotations[num] = { objects: extractedObjects.map(o => o.toObject()) };
     }
 
     pageRendering = false;
@@ -556,6 +579,66 @@ function handleImageUpload(e) {
     });
   };
   reader.readAsDataURL(file);
+}
+
+// FIRMA A MANO ALZADA
+let sigCanvas = null;
+function openSignatureModal() {
+  document.getElementById('signature-modal').classList.remove('hidden');
+  if (!sigCanvas) {
+    sigCanvas = new fabric.Canvas('signature-pad-canvas', {
+      isDrawingMode: true,
+      freeDrawingBrush: new fabric.PencilBrush(),
+    });
+    sigCanvas.freeDrawingBrush.color = document.getElementById('sig-color').value;
+    sigCanvas.freeDrawingBrush.width = 3;
+
+    document.getElementById('sig-color').addEventListener('input', (e) => {
+      if (sigCanvas) sigCanvas.freeDrawingBrush.color = e.target.value;
+    });
+  } else {
+    sigCanvas.clear();
+  }
+}
+
+function closeSignatureModal() {
+  document.getElementById('signature-modal').classList.add('hidden');
+}
+
+function clearSignaturePad() {
+  if (sigCanvas) sigCanvas.clear();
+}
+
+function insertSignatureToPDF() {
+  if (!sigCanvas) return;
+  const dataUrl = sigCanvas.toDataURL({ format: 'png', multiplier: 2 });
+  
+  fabric.Image.fromURL(dataUrl, function (img) {
+    img.scaleToWidth(200);
+    img.set({ left: fabricCanvas.width / 3, top: fabricCanvas.height / 3 });
+    fabricCanvas.add(img);
+    fabricCanvas.setActiveObject(img);
+    saveHistoryState();
+  });
+
+  closeSignatureModal();
+}
+
+// SELLOS PREDISEÑADOS
+function addStamp(textValue, textColor, bgColor) {
+  setTool('select');
+  const rect = new fabric.Rect({
+    width: 140, height: 45, fill: bgColor, stroke: textColor, strokeWidth: 2, rx: 6, ry: 6
+  });
+  const text = new fabric.IText(textValue, {
+    fontSize: 14, fontFamily: 'Inter', fontWeight: 'bold', fill: textColor, left: 15, top: 12
+  });
+  const group = new fabric.Group([rect, text], {
+    left: fabricCanvas.width / 3, top: fabricCanvas.height / 3, angle: -10
+  });
+  fabricCanvas.add(group);
+  fabricCanvas.setActiveObject(group);
+  saveHistoryState();
 }
 
 function deleteSelectedObject() {
