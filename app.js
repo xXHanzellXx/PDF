@@ -1,4 +1,4 @@
-// Configuración directa y segura del Worker de PDF.js compatible con entornos locales y web
+// Configuración del Worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
 let pdfDoc = null;
@@ -6,7 +6,7 @@ let originalPdfBytes = null;
 let pageNum = 1;
 let pageRendering = false;
 let pageNumPending = null;
-let scale = 1.0; // Escala inicial segura para evitar desbordamiento de memoria gráfica
+let scale = 1.0; 
 let rotations = {}; 
 let pageAnnotations = {}; 
 let copiedObject = null;
@@ -221,13 +221,18 @@ function updateHistoryButtonsUI() {
 
 async function handleFileSelect(e) {
   const file = e.target.files[0];
-  if (!file || file.type !== 'application/pdf') return;
+  if (!file || file.type !== 'application/pdf') {
+    alert("Por favor selecciona un archivo PDF válido.");
+    return;
+  }
 
   try {
     const fileArrayBuffer = await file.arrayBuffer();
-    originalPdfBytes = fileArrayBuffer.slice(0);
+    // CONVERSIÓN CRUCIAL A UINT8ARRAY PARA EVITAR EL BLOQUEO EN BLANCO
+    const uint8Array = new Uint8Array(fileArrayBuffer);
+    originalPdfBytes = uint8Array;
 
-    const loadingTask = pdfjsLib.getDocument({ data: fileArrayBuffer });
+    const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
     pdfDoc = await loadingTask.promise;
 
     pageNum = 1;
@@ -244,8 +249,8 @@ async function handleFileSelect(e) {
 
     await renderPage(pageNum);
   } catch (err) {
-    console.error("Error crítico al procesar el PDF:", err);
-    alert("No se pudo cargar el archivo PDF. Es posible que esté protegido con contraseña, tenga fuentes dañadas o supere la memoria permitida.");
+    console.error("Error al cargar el PDF:", err);
+    alert("No se pudo cargar el archivo PDF. Es posible que esté protegido o dañado.");
   }
 }
 
@@ -262,7 +267,6 @@ async function renderPage(num) {
     const rotation = (rotations[num] || 0);
     let viewport = page.getViewport({ scale: scale, rotation: rotation });
 
-    // Protección estricta de memoria para evitar pantallas en blanco en PDFs gigantes
     if (viewport.width > 2500) {
       scale = 2500 / viewport.width;
       viewport = page.getViewport({ scale: scale, rotation: rotation });
@@ -282,9 +286,8 @@ async function renderPage(num) {
       renderPage(pending);
     }
   } catch (err) {
-    console.error("Error al renderizar la página:", err);
+    console.error("Error al renderizar página:", err);
     pageRendering = false;
-    alert("Ocurrió un error al renderizar esta página específica del PDF.");
   }
 
   fabricCanvas.setWidth(pdfCanvas.width);
