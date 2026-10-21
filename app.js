@@ -1,21 +1,12 @@
-// SOLUCIÓN DEFINITIVA CORS Y WORKER
-const pdfWorkerUrl = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-fetch(pdfWorkerUrl)
-  .then(res => res.text())
-  .then(workerText => {
-    const blob = new Blob([workerText], { type: 'application/javascript' });
-    pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(blob);
-  })
-  .catch(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-  });
+// Configuración directa y segura del Worker de PDF.js compatible con entornos locales y web
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
 let pdfDoc = null;
 let originalPdfBytes = null;
 let pageNum = 1;
 let pageRendering = false;
 let pageNumPending = null;
-let scale = 1.0; // Escala inicial segura para evitar desbordamiento de memoria
+let scale = 1.0; // Escala inicial segura para evitar desbordamiento de memoria gráfica
 let rotations = {}; 
 let pageAnnotations = {}; 
 let copiedObject = null;
@@ -84,7 +75,7 @@ function setupEventListeners() {
   });
 
   document.getElementById('btn-zoom-in').addEventListener('click', () => { 
-    if (scale < 3.0) { scale += 0.25; renderPage(pageNum); } 
+    if (scale < 2.5) { scale += 0.25; renderPage(pageNum); } 
   });
   document.getElementById('btn-zoom-out').addEventListener('click', () => { 
     if (scale > 0.5) { scale -= 0.25; renderPage(pageNum); } 
@@ -251,10 +242,10 @@ async function handleFileSelect(e) {
     document.getElementById('empty-state').classList.add('hidden');
     document.getElementById('editor-wrapper').classList.remove('hidden');
 
-    renderPage(pageNum);
+    await renderPage(pageNum);
   } catch (err) {
-    console.error("Error al cargar el archivo PDF:", err);
-    alert("El archivo PDF está protegido, dañado o es incompatible con el visor. Por favor prueba con otro documento.");
+    console.error("Error crítico al procesar el PDF:", err);
+    alert("No se pudo cargar el archivo PDF. Es posible que esté protegido con contraseña, tenga fuentes dañadas o supere la memoria permitida.");
   }
 }
 
@@ -271,9 +262,9 @@ async function renderPage(num) {
     const rotation = (rotations[num] || 0);
     let viewport = page.getViewport({ scale: scale, rotation: rotation });
 
-    // Protección de memoria: si el ancho del canvas excede los límites seguros del navegador, reducir escala
-    if (viewport.width > 3500) {
-      scale = 3500 / viewport.width;
+    // Protección estricta de memoria para evitar pantallas en blanco en PDFs gigantes
+    if (viewport.width > 2500) {
+      scale = 2500 / viewport.width;
       viewport = page.getViewport({ scale: scale, rotation: rotation });
     }
 
@@ -291,8 +282,9 @@ async function renderPage(num) {
       renderPage(pending);
     }
   } catch (err) {
-    console.error("Error al renderizar página PDF:", err);
+    console.error("Error al renderizar la página:", err);
     pageRendering = false;
+    alert("Ocurrió un error al renderizar esta página específica del PDF.");
   }
 
   fabricCanvas.setWidth(pdfCanvas.width);
