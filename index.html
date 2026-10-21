@@ -51,7 +51,7 @@
       <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg cursor-pointer transition shadow-md flex items-center gap-2">
         <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
         <span class="hidden sm:inline">Abrir PDF</span>
-        <input type="file" id="pdf-input" accept="application/pdf" aria-label="Abrir archivo PDF" class="hidden" />
+        <input type="file" id="pdf-input" accept="application/pdf" aria-label="Seleccionar archivo PDF para abrir" class="hidden" />
       </label>
 
       <!-- EXPORTAR MENÚ -->
@@ -76,7 +76,7 @@
         </div>
       </div>
 
-      <button id="btn-guide" aria-label="Ayuda y atajos" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
+      <button id="btn-guide" aria-label="Ayuda y atajos de teclado" class="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-md flex items-center gap-1.5">
         <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
         <span class="hidden md:inline">Ayuda</span>
       </button>
@@ -121,14 +121,14 @@
           </button>
         </div>
 
-        <!-- CONTROLES DE TIPOGRAFÍA -->
+        <!-- CONTROLES DE TIPOGRAFÍA CON LABELS EXPLÍCITOS -->
         <div id="text-options" class="p-3 bg-gray-50 rounded-xl space-y-2.5 border border-gray-200">
           <span class="text-xs font-bold text-gray-700 flex items-center justify-between">
             <span>Tipografía & Fuente</span>
             <i class="fa-solid fa-text-height text-gray-400" aria-hidden="true"></i>
           </span>
           <div>
-            <label for="font-family" class="sr-only">Seleccionar familia de fuente</label>
+            <label for="font-family" class="block text-[11px] font-semibold text-gray-600 mb-1">Familia tipográfica</label>
             <select id="font-family" class="w-full text-xs p-2 border border-gray-300 rounded-lg bg-white font-medium focus:outline-none">
               <option value="Inter" selected>Inter (Predeterminada)</option>
               <option value="Arial">Arial</option>
@@ -139,16 +139,20 @@
               <option value="Verdana">Verdana</option>
             </select>
           </div>
-          <div class="flex items-center justify-between gap-1.5">
-            <label for="font-size" class="sr-only">Tamaño de fuente</label>
-            <input type="number" id="font-size" value="16" min="8" max="150" aria-label="Tamaño de fuente" class="w-14 text-xs p-1.5 border border-gray-300 rounded-lg text-center bg-white font-semibold">
-            
-            <label for="text-color" class="sr-only">Color de texto</label>
-            <input type="color" id="text-color" value="#000000" aria-label="Color de texto" class="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer p-0 bg-white">
-            
-            <button id="btn-bold" aria-label="Negrita" class="p-1.5 px-2.5 text-xs font-bold border border-gray-300 rounded-lg bg-white hover:bg-gray-100">B</button>
-            <button id="btn-italic" aria-label="Cursiva" class="p-1.5 px-2.5 text-xs italic border border-gray-300 rounded-lg bg-white hover:bg-gray-100">I</button>
-            <button id="btn-underline" aria-label="Subrayado" class="p-1.5 px-2.5 text-xs underline border border-gray-300 rounded-lg bg-white hover:bg-gray-100">U</button>
+          <div class="flex items-center justify-between gap-1.5 pt-1">
+            <div>
+              <label for="font-size" class="block text-[10px] font-medium text-gray-500">Tamaño</label>
+              <input type="number" id="font-size" value="16" min="8" max="150" aria-label="Tamaño de fuente" class="w-14 text-xs p-1.5 border border-gray-300 rounded-lg text-center bg-white font-semibold">
+            </div>
+            <div>
+              <label for="text-color" class="block text-[10px] font-medium text-gray-500">Color</label>
+              <input type="color" id="text-color" value="#000000" aria-label="Color del texto" class="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer p-0 bg-white block">
+            </div>
+            <div class="flex items-center gap-1 mt-3">
+              <button id="btn-bold" aria-label="Negrita" class="p-1.5 px-2.5 text-xs font-bold border border-gray-300 rounded-lg bg-white hover:bg-gray-100">B</button>
+              <button id="btn-italic" aria-label="Cursiva" class="p-1.5 px-2.5 text-xs italic border border-gray-300 rounded-lg bg-white hover:bg-gray-100">I</button>
+              <button id="btn-underline" aria-label="Subrayado" class="p-1.5 px-2.5 text-xs underline border border-gray-300 rounded-lg bg-white hover:bg-gray-100">U</button>
+            </div>
           </div>
         </div>
 
@@ -164,10 +168,10 @@
           </div>
           <div class="flex items-center gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
             <label for="draw-color" class="text-[11px] font-medium text-gray-600">Color:</label>
-            <input type="color" id="draw-color" value="#22c55e" aria-label="Color de dibujo" class="w-6 h-6 rounded border border-gray-300 cursor-pointer p-0 bg-white">
+            <input type="color" id="draw-color" value="#22c55e" aria-label="Color de trazo o dibujo" class="w-6 h-6 rounded border border-gray-300 cursor-pointer p-0 bg-white">
             
             <label for="draw-width" class="text-[11px] font-medium text-gray-600 ml-auto">Grosor:</label>
-            <input type="range" id="draw-width" min="1" max="40" value="4" aria-label="Grosor de trazo" class="w-16">
+            <input type="range" id="draw-width" min="1" max="40" value="4" aria-label="Grosor de línea o pincel" class="w-16">
           </div>
         </div>
 
@@ -193,7 +197,7 @@
           <label class="text-xs font-bold text-gray-600 block mb-1.5">Sellos & Imágenes</label>
           <label class="w-full p-2.5 rounded-xl text-xs font-semibold border-2 border-dashed border-gray-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
             <i class="fa-solid fa-image text-sm" aria-hidden="true"></i> Insertar Sello / Logo / Foto
-            <input type="file" id="image-input" accept="image/*" aria-label="Cargar imagen o sello" class="hidden" />
+            <input type="file" id="image-input" accept="image/*" aria-label="Subir archivo de imagen o sello" class="hidden" />
           </label>
         </div>
 
@@ -235,7 +239,7 @@
             <i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i>
           </button>
           <span class="text-xs font-semibold text-gray-600 flex items-center gap-1">
-            <label for="page-num">Pág.</label> <input type="number" id="page-num" value="1" min="1" aria-label="Número de página" class="w-12 text-center border border-gray-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
+            <label for="page-num">Pág.</label> <input type="number" id="page-num" value="1" min="1" aria-label="Número de página actual" class="w-12 text-center border border-gray-300 rounded-md py-0.5 font-bold text-indigo-600"> de <span id="page-count" class="font-bold">0</span>
           </span>
           <button id="btn-next" aria-label="Página siguiente" class="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-30">
             <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
@@ -262,7 +266,7 @@
           <p class="text-xs text-gray-500 mb-6 leading-relaxed">Carga cualquier contrato, factura o documento PDF. Edita textos, inserta firmas, aplica parches y exporta instantáneamente sin salir de tu navegador.</p>
           <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-pointer transition shadow-lg inline-block">
             <i class="fa-solid fa-folder-open mr-2" aria-hidden="true"></i> Abrir Archivo PDF
-            <input type="file" id="pdf-input-welcome" accept="application/pdf" aria-label="Cargar archivo PDF de bienvenida" class="hidden" />
+            <input type="file" id="pdf-input-welcome" accept="application/pdf" aria-label="Abrir archivo PDF desde la pantalla de bienvenida" class="hidden" />
           </label>
         </div>
 
@@ -287,7 +291,7 @@
             <p class="text-xs text-gray-300">Domina el editor como un profesional</p>
           </div>
         </div>
-        <button id="close-guide" aria-label="Cerrar modal" class="text-gray-400 hover:text-white text-2xl font-bold p-1">
+        <button id="close-guide" aria-label="Cerrar ventana de ayuda" class="text-gray-400 hover:text-white text-2xl font-bold p-1">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
