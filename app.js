@@ -1,5 +1,6 @@
-// Configuración del Worker de PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+// SOLUCIÓN DEFINITIVA: Desactivar el Web Worker externo y usar el Fake Worker en el hilo principal
+// Esto evita por completo el bloqueo CORS y la pantalla en blanco al abrir archivos locales (file://)
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 let pdfDoc = null;
 let originalPdfBytes = null;
@@ -228,7 +229,6 @@ async function handleFileSelect(e) {
 
   try {
     const fileArrayBuffer = await file.arrayBuffer();
-    // CONVERSIÓN CRUCIAL A UINT8ARRAY PARA EVITAR EL BLOQUEO EN BLANCO
     const uint8Array = new Uint8Array(fileArrayBuffer);
     originalPdfBytes = uint8Array;
 
@@ -250,7 +250,7 @@ async function handleFileSelect(e) {
     await renderPage(pageNum);
   } catch (err) {
     console.error("Error al cargar el PDF:", err);
-    alert("No se pudo cargar el archivo PDF. Es posible que esté protegido o dañado.");
+    alert("No se pudo cargar el archivo PDF. Asegúrate de que no esté protegido con contraseña.");
   }
 }
 
