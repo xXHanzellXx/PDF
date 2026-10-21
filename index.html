@@ -110,7 +110,7 @@
               <i class="fa-solid fa-font"></i> Texto
             </button>
             <button id="tool-sticky-note" class="p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-note-sticky text-amber-500"></i> Nota Rapida
+              <i class="fa-solid fa-note-sticky text-amber-500"></i> Nota Rápida
             </button>
           </div>
           <button id="tool-whiteout" class="w-full p-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-2" title="Cubre texto u objetos con un parche blanco">
@@ -344,10 +344,8 @@
 
   <!-- LÓGICA JAVASCRIPT COMPLETA Y CORREGIDA -->
   <script>
-    // Configuración CDN Worker de PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // ESTADOS GLOBALES
     let pdfDoc = null;
     let originalPdfBytes = null;
     let pageNum = 1;
@@ -379,7 +377,6 @@
       fabricCanvas.on('object:added', saveState);
       fabricCanvas.on('object:removed', saveState);
 
-      // Sincronizar panel de herramientas con objeto seleccionado
       fabricCanvas.on('selection:created', syncTextControls);
       fabricCanvas.on('selection:updated', syncTextControls);
     }
@@ -442,7 +439,6 @@
 
     function setupKeyboardShortcuts() {
       window.addEventListener('keydown', (e) => {
-        // Evitar accionar accesos si se está escribiendo en un cuadro de texto
         const activeElem = document.activeElement;
         if (activeElem && (activeElem.tagName === 'INPUT' || activeElem.tagName === 'SELECT' || activeElem.tagName === 'TEXTAREA')) {
           return;
@@ -791,7 +787,6 @@
       renderPage(pageNum);
     }
 
-    // EXPORTACIÓN Y DESCARGA CORREGIDA AL 100%
     async function exportPDF() {
       if (!originalPdfBytes) return;
 
@@ -800,20 +795,15 @@
       const pdfDocLib = await PDFLib.PDFDocument.load(originalPdfBytes);
       const pages = pdfDocLib.getPages();
 
-      // Recorrer las páginas e incrustar las capas de Fabric.js
       for (let i = 1; i <= pdfDoc.numPages; i++) {
         const pdfPage = pages[i - 1];
         
-        // Aplicar rotaciones
         if (rotations[i]) {
           const currentRotation = pdfPage.getRotation().angle;
           pdfPage.setRotation(PDFLib.degrees(currentRotation + rotations[i]));
         }
 
-        // Si existen anotaciones creadas en la página
         if (pageAnnotations[i] && pageAnnotations[i].objects && pageAnnotations[i].objects.length > 0) {
-          
-          // Crear canvas auxiliar en memoria a escala 1:1 pura de la página
           const tempCanvasElem = document.createElement('canvas');
           const pageViewport = (await pdfDoc.getPage(i)).getViewport({ scale: 1.0, rotation: 0 });
           
@@ -822,11 +812,10 @@
 
           const tempFabric = new fabric.Canvas(tempCanvasElem);
 
-          // Cargar JSON y redimensionar objetos a la escala original de la página
           await new Promise((resolve) => {
             tempFabric.loadFromJSON(pageAnnotations[i], () => {
               const objects = tempFabric.getObjects();
-              const currentScale = scale; // Escala usada durante la edición visual
+              const currentScale = scale;
               
               objects.forEach((obj) => {
                 obj.scaleX /= currentScale;
@@ -841,7 +830,6 @@
             });
           });
 
-          // Obtener la imagen PNG transparente con los dibujos
           const dataUrl = tempCanvasElem.toDataURL({ format: 'png', multiplier: 2 });
           const pngImage = await pdfDocLib.embedPng(dataUrl);
 
@@ -857,7 +845,6 @@
         }
       }
 
-      // Generar binario PDF y descargar
       const pdfBytes = await pdfDocLib.save();
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
