@@ -254,7 +254,7 @@ async function handleFileSelect(e) {
     const bytes = await file.arrayBuffer();
     // PDF nativo: se mantiene el flujo existente sin rasterizar el documento.
     if (ext === 'pdf' || file.type === 'application/pdf') {
-      await loadPdfBytes(new Uint8Array(bytes), file.name, { reconstructText: true });
+      await loadPdfBytes(new Uint8Array(bytes), file.name, { reconstructText: false });
       return;
     }
     if (['png','jpg','jpeg','webp','gif','bmp','tif','tiff'].includes(ext) || file.type.startsWith('image/')) {
@@ -531,9 +531,25 @@ function loadImage(src) {
   return new Promise((resolve,reject)=>{const img=new Image(); img.onload=()=>resolve(img); img.onerror=()=>reject(new Error('No se pudo leer la imagen.')); img.src=src;});
 }
 function setImportStatus(message) {
-  let status=document.getElementById('editable-import-status');
-  if (!status) { status=document.createElement('div'); status.id='editable-import-status'; status.setAttribute('role','status'); status.className='fixed bottom-3 left-3 z-40 max-w-xl rounded-lg bg-slate-900 text-white text-xs px-3 py-2 shadow-lg'; document.body.appendChild(status); }
-  status.textContent=message;
+  let status = document.getElementById('editable-import-status');
+
+  if (!status) {
+    status = document.createElement('div');
+    status.id = 'editable-import-status';
+    status.setAttribute('role', 'status');
+    document.body.appendChild(status);
+  }
+
+  status.className =
+    'fixed bottom-3 left-3 z-40 max-w-md rounded-lg bg-slate-900 text-white text-xs px-3 py-2 shadow-lg pointer-events-none';
+
+  status.textContent = message;
+  status.classList.remove('hidden');
+
+  clearTimeout(status._hideTimer);
+  status._hideTimer = setTimeout(() => {
+    status.classList.add('hidden');
+  }, 4500);
 }
 
 function applyManualFont() {
