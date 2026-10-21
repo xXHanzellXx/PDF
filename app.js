@@ -1,5 +1,3 @@
-// SOLUCIÓN DEFINITIVA: Desactivar el Web Worker externo y usar el Fake Worker en el hilo principal
-// Esto evita por completo el bloqueo CORS y la pantalla en blanco al abrir archivos locales (file://)
 pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 let pdfDoc = null;
@@ -274,6 +272,11 @@ async function renderPage(num) {
 
     pdfCanvas.height = viewport.height;
     pdfCanvas.width = viewport.width;
+
+    // ASIGNAR TAMAÑO EXACTO AL CONTENEDOR PADRE PARA EVITAR QUE SE PONGA EN BLANCO
+    const editorWrapper = document.getElementById('editor-wrapper');
+    editorWrapper.style.width = `${viewport.width}px`;
+    editorWrapper.style.height = `${viewport.height}px`;
 
     const renderContext = { canvasContext: pdfCtx, viewport: viewport };
     await page.render(renderContext).promise;
