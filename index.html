@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>xds</title>
+  <title>PDF Master Suite Pro - Editor Completo</title>
   
   <!-- Estilos Tailwind y FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Tipografía principal optimizada -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <!-- Tipografía principal optimizada y Google Fonts extendidas -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;700&family=Poppins:wght@300;400;500;700&family=Playfair+Display:wght@400;700&family=Courier+Prime&display=swap">
 
   <!-- Estilos Personalizados -->
   <link rel="stylesheet" href="styles.css">
@@ -89,7 +89,7 @@
     <!-- PANEL LATERAL -->
     <aside class="w-full sm:w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-10 shadow-sm overflow-y-auto no-scrollbar">
       <div class="p-3.5 border-b border-gray-100 font-bold text-[11px] text-gray-400 uppercase tracking-wider hidden sm:flex items-center justify-between">
-        <span>Caja de Herramientas</span>
+        <span>Caja de Herramientas Pro</span>
         <i class="fa-solid fa-toolbox text-gray-400" aria-hidden="true"></i>
       </div>
 
@@ -121,7 +121,7 @@
           </button>
         </div>
 
-        <!-- CONTROLES DE TIPOGRAFÍA CON LABELS EXPLÍCITOS -->
+        <!-- CONTROLES DE TIPOGRAFÍA CON TODAS LAS FUENTES EXISTENTES -->
         <div id="text-options" class="p-3 bg-gray-50 rounded-xl space-y-2.5 border border-gray-200">
           <span class="text-xs font-bold text-gray-700 flex items-center justify-between">
             <span>Tipografía & Fuente</span>
@@ -130,13 +130,32 @@
           <div>
             <label for="font-family" class="block text-[11px] font-semibold text-gray-600 mb-1">Familia tipográfica</label>
             <select id="font-family" class="w-full text-xs p-2 border border-gray-300 rounded-lg bg-white font-medium focus:outline-none">
-              <option value="Inter" selected>Inter (Predeterminada)</option>
-              <option value="Arial">Arial</option>
-              <option value="Helvetica">Helvetica</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Courier New">Courier New</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
+              <optgroup label="Modernas / Sans-Serif">
+                <option value="Inter" selected>Inter</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Century Gothic">Century Gothic</option>
+              </optgroup>
+              <optgroup label="Clásicas / Serif">
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Palatino">Palatino</option>
+                <option value="Playfair Display">Playfair Display</option>
+              </optgroup>
+              <optgroup label="Monoespaciadas / Otras">
+                <option value="Courier New">Courier New</option>
+                <option value="Courier Prime">Courier Prime</option>
+                <option value="Impact">Impact</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+              </optgroup>
             </select>
           </div>
           <div class="flex items-center justify-between gap-1.5 pt-1">
@@ -157,10 +176,10 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-gray-600 block mb-1.5">Dibujo Libre & Firma</label>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Dibujo Libre & Resaltador</label>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button id="tool-draw" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Lápiz / Firma
+              <i class="fa-solid fa-pen-nib" aria-hidden="true"></i> Lápiz Libre
             </button>
             <button id="tool-highlight" class="p-2 rounded-lg text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-highlighter text-amber-500" aria-hidden="true"></i> Resaltador
@@ -172,6 +191,20 @@
             
             <label for="draw-width" class="text-[11px] font-medium text-gray-600 ml-auto">Grosor:</label>
             <input type="range" id="draw-width" min="1" max="40" value="4" aria-label="Grosor de línea o pincel" class="w-16">
+          </div>
+        </div>
+
+        <!-- FIRMA A MANO ALZADA Y SELLOS -->
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Firmas y Sellos Digitales</label>
+          <button id="btn-open-signature" class="w-full p-2.5 mb-2 rounded-xl text-xs font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-signature text-sm" aria-hidden="true"></i> Dibujar Firma a Mano Alzada
+          </button>
+          <div class="grid grid-cols-2 gap-1.5 mb-2">
+            <button id="stamp-approved" class="p-1.5 rounded-lg text-[10px] font-bold border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 transition">APROBADO</button>
+            <button id="stamp-rejected" class="p-1.5 rounded-lg text-[10px] font-bold border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 transition">RECHAZADO</button>
+            <button id="stamp-confidential" class="p-1.5 rounded-lg text-[10px] font-bold border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition">CONFIDENCIAL</button>
+            <button id="stamp-signed" class="p-1.5 rounded-lg text-[10px] font-bold border border-indigo-300 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition">FIRMADO</button>
           </div>
         </div>
 
@@ -194,9 +227,9 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-gray-600 block mb-1.5">Sellos & Imágenes</label>
+          <label class="text-xs font-bold text-gray-600 block mb-1.5">Insertar Imágenes o Sellos</label>
           <label class="w-full p-2.5 rounded-xl text-xs font-semibold border-2 border-dashed border-gray-300 text-indigo-600 hover:bg-indigo-50 transition flex items-center justify-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-image text-sm" aria-hidden="true"></i> Insertar Sello / Logo / Foto
+            <i class="fa-solid fa-image text-sm" aria-hidden="true"></i> Subir Sello / Logo (PNG/JPG)
             <input type="file" id="image-input" accept="image/*" aria-label="Subir archivo de imagen o sello" class="hidden" />
           </label>
         </div>
@@ -263,7 +296,7 @@
             <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Editor PDF Licenciado Profesional</h2>
-          <p class="text-xs text-gray-500 mb-6 leading-relaxed">Carga cualquier contrato, factura o documento PDF. Edita textos, inserta firmas, aplica parches y exporta instantáneamente sin salir de tu navegador.</p>
+          <p class="text-xs text-gray-500 mb-6 leading-relaxed">Carga cualquier contrato, factura o documento PDF. Edita textos, inserta firmas digitales, aplica sellos y exporta instantáneamente sin salir de tu navegador.</p>
           <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl cursor-pointer transition shadow-lg inline-block">
             <i class="fa-solid fa-folder-open mr-2" aria-hidden="true"></i> Abrir Archivo PDF
             <input type="file" id="pdf-input-welcome" accept="application/pdf" aria-label="Abrir archivo PDF desde la pantalla de bienvenida" class="hidden" />
@@ -276,6 +309,33 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- MODAL DE FIRMA DIGITAL A MANO ALZADA -->
+  <div id="signature-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full flex flex-col shadow-2xl overflow-hidden">
+      <div class="bg-gradient-to-r from-gray-900 to-indigo-950 p-4 text-white flex justify-between items-center">
+        <h3 class="text-base font-bold flex items-center gap-2"><i class="fa-solid fa-signature"></i> Crear Firma Digital</h3>
+        <button id="close-signature-modal" aria-label="Cerrar modal de firma" class="text-gray-400 hover:text-white text-xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <p class="text-xs text-gray-500">Dibuja tu firma a mano alzada en el recuadro inferior:</p>
+        <div class="border-2 border-dashed border-gray-300 rounded-xl overflow-hidden bg-gray-50">
+          <canvas id="signature-pad-canvas" width="380" height="160" class="w-full cursor-crosshair"></canvas>
+        </div>
+        <div class="flex items-center justify-between">
+          <button id="clear-signature" class="text-xs text-rose-600 hover:underline font-semibold flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> Limpiar recuadro</button>
+          <div class="flex items-center gap-2">
+            <label for="sig-color" class="text-xs text-gray-600 font-medium">Color de tinta:</label>
+            <input type="color" id="sig-color" value="#0000ff" class="w-7 h-7 rounded border cursor-pointer p-0 bg-white">
+          </div>
+        </div>
+      </div>
+      <div class="p-3 bg-gray-50 border-t flex justify-end gap-2">
+        <button id="cancel-signature" class="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button id="insert-signature" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow transition">Insertar en PDF</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DE AYUDA -->
